@@ -353,6 +353,24 @@ export default function AITimetablePage() {
             </div>
           )}
 
+          {/* Solver Rules Info Card */}
+          <Card className="mt-6 p-5 border-[var(--color-surface-600)]">
+            <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-3 flex items-center gap-2">
+              <Sparkles size={16} className="text-[var(--color-brand-400)]" />
+              Generation Rules & Constraints
+            </h3>
+            <ul className="space-y-2 text-xs text-[var(--color-text-secondary)] list-disc list-inside">
+              <li><strong>Weekly Period Constraint:</strong> Each section must have exactly 54 periods scheduled (6 days &times; 9 periods) matching requirements.</li>
+              <li><strong>One Subject per Slot:</strong> Only one subject can be scheduled in a section for a given time slot.</li>
+              <li><strong>One Teacher per Slot (No Double Booking):</strong> A teacher cannot teach in multiple sections at the same time.</li>
+              <li><strong>Teacher Capacity Limits:</strong> A teacher's total workload cannot exceed their weekly assigned capacity (max 54 periods globally).</li>
+              <li><strong>Daily Subject Variety Limits:</strong> Weekly subject periods are evenly spread across days, capped at <code>ceil(weekly_periods / 6)</code> per day.</li>
+              <li><strong>No Consecutive Handwriting (HW):</strong> Handwriting (HW) cannot be scheduled back-to-back on the same day.</li>
+              <li><strong>Capped PET Spread:</strong> Physical Education (PET) is limited to a maximum of 1 period per day.</li>
+              <li><strong>Period Index Variety:</strong> A subject cannot occupy the same period position (e.g., Period 1) more than 3 times in a week.</li>
+            </ul>
+          </Card>
+
           {/* Agent Logs Card */}
           <Card className="mt-6 p-5 border-[var(--color-surface-600)]">
             <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-3 flex items-center gap-2">

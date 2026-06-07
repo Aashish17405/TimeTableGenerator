@@ -82,6 +82,10 @@ def create_allocation(
                 f"{data.subject_id}. Create it first."
             ),
         )
+
+    if data.periods_per_week is None:
+        data.periods_per_week = req.periods_per_week
+
     if data.periods_per_week > req.periods_per_week:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,

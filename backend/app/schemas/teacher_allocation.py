@@ -9,7 +9,7 @@ class TeacherAllocationBase(BaseModel):
     teacher_id: int = Field(..., examples=[1])
     section_id: int = Field(..., examples=[3])
     subject_id: int = Field(..., examples=[1])
-    periods_per_week: int = Field(..., ge=1, examples=[12])
+    periods_per_week: int | None = Field(None, ge=1, examples=[12])
 
 
 class TeacherAllocationCreate(TeacherAllocationBase):

@@ -6,7 +6,7 @@ import { allocationsApi, teachersApi, sectionsApi, subjectsApi, teacherClassMapp
 import type { TeacherAllocation } from '../types'
 import { useSchool } from '../features/school/SchoolContext'
 import {
-  PageHeader, Card, Button, Badge, Input, Select,
+  PageHeader, Card, Button, Badge, Select,
   Spinner, EmptyState, ErrorAlert, ConfirmDelete,
 } from '../components/ui'
 
@@ -17,7 +17,7 @@ export default function AllocationsPage() {
   const [deleteTarget, setDeleteTarget] = useState<TeacherAllocation | null>(null)
   const [filterTeacher, setFilterTeacher] = useState<number | undefined>()
   const [filterSection, setFilterSection] = useState<number | undefined>()
-  const [form, setForm] = useState({ teacher_id: '', section_id: '', subject_id: '', periods_per_week: '' })
+  const [form, setForm] = useState({ teacher_id: '', section_id: '', subject_id: '' })
   const [apiError, setApiError] = useState('')
 
   // Derive the class_id of the currently selected section (for teacher-class mapping filter)
@@ -58,7 +58,7 @@ export default function AllocationsPage() {
 
   const createMut = useMutation({
     mutationFn: allocationsApi.create,
-    onSuccess: () => { invalidate(); setModal(false); setForm({ teacher_id: '', section_id: '', subject_id: '', periods_per_week: '' }); setApiError('') },
+    onSuccess: () => { invalidate(); setModal(false); setForm({ teacher_id: '', section_id: '', subject_id: '' }); setApiError('') },
     onError: (e: any) => setApiError(e.response?.data?.detail ?? 'Failed to create allocation'),
   })
   const deleteMut = useMutation({
@@ -111,7 +111,6 @@ export default function AllocationsPage() {
                   teacher_id: Number(form.teacher_id),
                   section_id: Number(form.section_id),
                   subject_id: Number(form.subject_id),
-                  periods_per_week: Number(form.periods_per_week),
                 })
               }}
               className="flex flex-col gap-4"
@@ -131,7 +130,7 @@ export default function AllocationsPage() {
                 <option value="">Select subject…</option>
                 {subjects.map(s => <option key={s.id} value={s.id}>{s.code} — {s.name}</option>)}
               </Select>
-              <Input id="alloc-periods" label="Periods / Week" type="number" min={1} max={54} placeholder="e.g. 12" value={form.periods_per_week} onChange={e => setForm(f => ({ ...f, periods_per_week: e.target.value }))} required />
+
               <div className="flex gap-3 pt-2">
                 <Button type="submit" disabled={createMut.isPending}>{createMut.isPending && <Spinner size={14} />}Save</Button>
                 <Button type="button" variant="ghost" onClick={() => setModal(false)}>Cancel</Button>

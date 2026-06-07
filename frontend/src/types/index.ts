@@ -109,7 +109,7 @@ export interface TeacherAllocationCreate {
   teacher_id: number
   section_id: number
   subject_id: number
-  periods_per_week: number
+  periods_per_week?: number
 }
 export interface TeacherAllocationUpdate { periods_per_week?: number }
 
