@@ -16,10 +16,12 @@ router = APIRouter(prefix="/teacher-class-mappings", tags=["Teacher-Class Mappin
 def list_mappings(
     teacher_id: int | None = None,
     class_id: int | None = None,
+    page: int = 1,
+    size: int = 20,
     db: Session = Depends(get_db),
 ):
     """List all teacher-class mappings, optionally filtered."""
-    total, items = crud.get_paginated(db, teacher_id=teacher_id, class_id=class_id)
+    total, items = crud.get_paginated(db, teacher_id=teacher_id, class_id=class_id, page=page, size=size)
     return {
         "items": items,
         "total": total,
@@ -55,7 +57,7 @@ def delete_mapping(mapping_id: int, db: Session = Depends(get_db)):
     crud.delete(db, mapping)
 
 
-@router.get("/teachers-for-class/{class_id}", response_model=PaginatedResponse[TeacherRead])
+@router.get("/teachers-for-class/{class_id}", response_model=list[TeacherRead])
 def teachers_for_class(class_id: int, db: Session = Depends(get_db)):
     """Return all teachers mapped to the given class (used in allocation dropdowns)."""
     school_class = class_crud.get(db, class_id)

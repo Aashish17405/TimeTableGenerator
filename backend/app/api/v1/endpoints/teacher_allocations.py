@@ -7,6 +7,7 @@ from app.crud import teacher_allocation as crud
 from app.crud import teacher as teacher_crud
 from app.crud import section as section_crud
 from app.crud import subject as subject_crud
+from app.crud import school_class as class_crud
 from app.crud import subject_requirement as req_crud
 from app.models.section import Section
 from app.schemas.teacher_allocation import (
@@ -75,11 +76,15 @@ def create_allocation(
     # Hard cap: periods must not exceed the class-level subject requirement
     req = req_crud.get_by_class_and_subject(db, class_id, data.subject_id)
     if req is None:
+        school_class = class_crud.get(db, class_id)
+        subject = subject_crud.get(db, data.subject_id)
+        class_name = school_class.name if school_class else f"ID {class_id}"
+        subject_name = f"{subject.code} ({subject.name})" if subject else f"ID {data.subject_id}"
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=(
-                f"No SubjectRequirement found for class {class_id} and subject "
-                f"{data.subject_id}. Create it first."
+                f"Before allocating a teacher, you must define the weekly period requirements "
+                f"for Class {class_name} and Subject {subject_name} on the Requirements page."
             ),
         )
 

@@ -59,13 +59,16 @@ def generate_timetable(
     )
     requirements = list(db.scalars(requirements_stmt))
 
-    section_allocations: dict[int, list[TeacherAllocation]] = {section_id: [] for section_id in section_ids}
-    for allocation in allocations:
-        section_allocations[allocation.section_id].append(allocation)
-
     requirements_by_class: dict[int, dict[int, SubjectRequirement]] = defaultdict(dict)
     for requirement in requirements:
         requirements_by_class[requirement.school_class_id][requirement.subject_id] = requirement
+
+    section_allocations: dict[int, list[TeacherAllocation]] = {section_id: [] for section_id in section_ids}
+    for allocation in allocations:
+        class_id = allocation.section.school_class_id
+        req = requirements_by_class[class_id].get(allocation.subject_id)
+        allocation.periods_per_week = req.periods_per_week if req else 0
+        section_allocations[allocation.section_id].append(allocation)
 
     validation_errors = _validate_inputs(sections, section_allocations, requirements_by_class)
     if validation_errors:

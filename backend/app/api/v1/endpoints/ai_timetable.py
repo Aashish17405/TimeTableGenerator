@@ -28,19 +28,25 @@ def get_allocations_tool(db: Session, class_ids: list[int], school_id: int | Non
     # This function represents the "get_allocations" tool for the AI
     from app.models.section import Section
     from app.models.teacher_allocation import TeacherAllocation
+    from app.models.subject_requirement import SubjectRequirement
     
     query = db.query(Section).filter(Section.school_class_id.in_(class_ids))
     sections = query.all()
+    
+    # Pre-load subject requirements to resolve periods per week dynamically
+    reqs = db.query(SubjectRequirement).filter(SubjectRequirement.school_class_id.in_(class_ids)).all()
+    req_map = {(r.school_class_id, r.subject_id): r.periods_per_week for r in reqs}
     
     allocations_data = []
     for sec in sections:
         sec_allocs = db.query(TeacherAllocation).filter(TeacherAllocation.section_id == sec.id).all()
         allocs = []
         for a in sec_allocs:
+            periods = req_map.get((sec.school_class_id, a.subject_id), 0)
             allocs.append({
                 "subject_code": a.subject.code,
                 "teacher_name": a.teacher.name,
-                "periods": a.periods_per_week
+                "periods": periods
             })
         allocations_data.append({
             "section_id": sec.id,
@@ -169,7 +175,21 @@ def generate_ai_timetable(request: AITimetableRequest, db: Session = Depends(get
     messages = [
         {
             "role": "system",
-            "content": "You are an AI Timetable Generator. Your job is to create a conflict-free timetable. A week has 6 days, 9 periods a day = 54 total slots (indexed 0 to 53). You MUST assign exactly the number of periods specified in get_allocations to each section, no more, no less. Ensure no teacher is assigned to two different sections in the same slot. Use validate_draft to check your work, and submit_timetable when done. If the required allocations are mathematically impossible to schedule (e.g. any single teacher is required to teach more than 54 periods across all their assigned sections), you cannot create a conflict-free timetable. Instead of failing silently, explicitly state the mathematical problem in your response and propose a concrete suggestion to fix it (e.g. 'Reduce Bob\\'s MATH periods by 6'). DO NOT use any comments inside the JSON for tool calls. Your output MUST be strictly valid JSON."
+            "content": (
+                "You are an AI Timetable Generator. Your job is to create a conflict-free timetable. "
+                "A week has 6 days (Monday to Saturday), 9 periods a day = 54 total slots (indexed 0 to 53). "
+                "You MUST satisfy all of the following rules:\n"
+                "1. COMPLETE WEEK: Assign exactly the number of periods specified in get_allocations to each section (total 54 periods per section).\n"
+                "2. NO DOUBLE BOOKING: Ensure no teacher is assigned to two different sections in the same slot.\n"
+                "3. DAILY SUBJECT LIMIT: A subject cannot exceed ceil(weekly_periods / 6) periods per day.\n"
+                "4. CONSECUTIVE LIMIT: A subject cannot be scheduled for more than 2 consecutive periods on the same day.\n"
+                "5. HANDWRITING SPREAD: Handwriting (HW) cannot be scheduled back-to-back (no 2 consecutive HW periods on the same day).\n"
+                "6. PET LIMIT: Physical Education (PET) is limited to exactly 2 periods per week, and a maximum of 1 period per day.\n"
+                "7. PERIOD INDEX VARIETY: A subject cannot occupy the same period position (e.g., Period 1, which corresponds to slots 0, 9, 18, 27, 36, 45) more than 3 times in a week.\n"
+                "Use validate_draft to check your work, and submit_timetable when done. "
+                "If the required allocations are mathematically impossible to schedule (e.g. any single teacher is required to teach more than 54 periods across all their assigned sections), you cannot create a conflict-free timetable. Instead of failing silently, explicitly state the mathematical problem in your response and propose a concrete suggestion to fix it (e.g. 'Reduce Bob\\'s MATH periods by 6'). "
+                "DO NOT use any comments inside the JSON for tool calls. Your output MUST be strictly valid JSON."
+            )
         },
         {
             "role": "user",

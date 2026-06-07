@@ -61,11 +61,21 @@ def get_paginated(
     size: int = 20,
 ) -> tuple[int, list[TeacherAllocation]]:
     skip = (page - 1) * size
-    base_stmt = select(TeacherAllocation)
+    base_stmt = select(TeacherAllocation).options(
+        selectinload(TeacherAllocation.teacher),
+        selectinload(TeacherAllocation.section).selectinload(Section.school_class),
+        selectinload(TeacherAllocation.subject),
+    )
     if teacher_id is not None:
         base_stmt = base_stmt.where(TeacherAllocation.teacher_id == teacher_id)
     if section_id is not None:
         base_stmt = base_stmt.where(TeacherAllocation.section_id == section_id)
+    if school_id is not None:
+        base_stmt = (
+            base_stmt.join(Section, TeacherAllocation.section_id == Section.id)
+            .join(SchoolClass, Section.school_class_id == SchoolClass.id)
+            .where(SchoolClass.school_id == school_id)
+        )
 
     total = db.scalar(select(func.count()).select_from(base_stmt.subquery())) or 0
     items = list(db.scalars(base_stmt.offset(skip).limit(size)))

@@ -114,6 +114,14 @@ def generate_timetables(sections_input: list[dict[str, Any]]) -> dict[str, Any]:
                         slot2 = slot1 + 1
                         model.Add(X[sec_id][a_idx][slot1] + X[sec_id][a_idx][slot2] <= 1)
                         
+            # Consecutive subject limit: Max 2 consecutive periods of any subject on the same day
+            for d in range(len(DAYS)):
+                for p in range(PERIODS_PER_DAY - 2):
+                    slot1 = d * PERIODS_PER_DAY + p
+                    slot2 = slot1 + 1
+                    slot3 = slot1 + 2
+                    model.Add(X[sec_id][a_idx][slot1] + X[sec_id][a_idx][slot2] + X[sec_id][a_idx][slot3] <= 2)
+                        
             # Same period index variety
             # We don't want the same subject in Period 1 every single day
             for p in range(PERIODS_PER_DAY):

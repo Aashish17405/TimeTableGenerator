@@ -47,6 +47,10 @@ def get_paginated(
     base_stmt = select(Section).options(selectinload(Section.school_class))
     if class_id is not None:
         base_stmt = base_stmt.where(Section.school_class_id == class_id)
+    if school_id is not None:
+        base_stmt = base_stmt.join(SchoolClass, Section.school_class_id == SchoolClass.id).where(
+            SchoolClass.school_id == school_id
+        )
 
     total = db.scalar(select(func.count()).select_from(base_stmt.subquery())) or 0
     items = list(db.scalars(base_stmt.order_by(Section.school_class_id, Section.name).offset(skip).limit(size)))
