@@ -1,8 +1,8 @@
 import { Pagination } from '../components/Pagination'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus, Trash2, CalendarDays } from 'lucide-react'
-import { allocationsApi, teachersApi, sectionsApi, subjectsApi, teacherClassMappingsApi } from '../services/api'
+import { allocationsApi, teachersApi, sectionsApi, subjectsApi, teacherClassMappingsApi, requirementsApi } from '../services/api'
 import type { TeacherAllocation } from '../types'
 import { useSchool } from '../features/school/SchoolContext'
 import {
@@ -42,7 +42,6 @@ export default function AllocationsPage() {
     queryFn: () => teacherClassMappingsApi.teachersForClass(selectedClassId!),
     enabled: selectedClassId !== null,
   })
-  const availableTeachers = selectedClassId ? (mappedTeachers || []) : allTeachers
 
   const [page, setPage] = useState(1)
   const { data: paginatedData, isLoading } = useQuery({ 
@@ -53,6 +52,27 @@ export default function AllocationsPage() {
   const allocs = paginatedData?.items || []
   const { data: subjectsData } = useQuery({ queryKey: ['subjects'], queryFn: () => subjectsApi.list(undefined, 1000) })
   const subjects = subjectsData?.items || []
+
+  // Fetch requirements summary for the selected class to restrict subjects
+  const { data: classReqs } = useQuery({
+    queryKey: ['class-requirements', selectedClassId],
+    queryFn: () => selectedClassId ? requirementsApi.summary(selectedClassId) : null,
+    enabled: selectedClassId !== null,
+  })
+
+  // Check if selected subject is required for the class
+  const isSubjectRequired = useMemo(() => {
+    if (!selectedClassId || !form.subject_id) return true
+    const requiredSubjectIds = new Set(classReqs?.requirements?.map(r => r.subject_id) || [])
+    return requiredSubjectIds.has(Number(form.subject_id))
+  }, [classReqs, selectedClassId, form.subject_id])
+
+  // Check if selected teacher is mapped to the class
+  const isTeacherMapped = useMemo(() => {
+    if (!selectedClassId || !form.teacher_id) return true
+    const mappedIds = new Set(mappedTeachers?.map(t => t.id) || [])
+    return mappedIds.has(Number(form.teacher_id))
+  }, [mappedTeachers, selectedClassId, form.teacher_id])
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ['allocations'] })
 
@@ -93,7 +113,7 @@ export default function AllocationsPage() {
               <option value="">All Sections</option>
               {sections.map(s => <option key={s.id} value={s.id}>{s.school_class.name}{s.name}</option>)}
             </Select>
-            <Button onClick={() => { setModal(true); setApiError('') }}><Plus size={16} />Add Allocation</Button>
+            <Button onClick={() => { setModal(true); setForm({ teacher_id: '', section_id: '', subject_id: '' }); setApiError('') }}><Plus size={16} />Add Allocation</Button>
           </div>
         }
       />
@@ -115,24 +135,37 @@ export default function AllocationsPage() {
               }}
               className="flex flex-col gap-4"
             >
-              <Select id="alloc-teacher" label="Teacher" value={form.teacher_id} onChange={e => setForm(f => ({ ...f, teacher_id: e.target.value }))} required>
-                <option value="">Select teacher…</option>
-                {availableTeachers.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-              </Select>
-              {selectedClassId && availableTeachers.length === 0 && (
-                <p className="text-xs text-amber-400">No teachers are mapped to this class yet. Go to Classes → Manage Teachers to add mappings.</p>
-              )}
-              <Select id="alloc-section" label="Section" value={form.section_id} onChange={e => setForm(f => ({ ...f, section_id: e.target.value }))} required>
+              <Select id="alloc-section" label="Section" value={form.section_id} onChange={e => {
+                const secId = e.target.value
+                setForm(f => ({
+                  ...f,
+                  section_id: secId,
+                  teacher_id: '',
+                  subject_id: ''
+                }))
+              }} required>
                 <option value="">Select section…</option>
                 {sections.map(s => <option key={s.id} value={s.id}>{s.school_class.name}{s.name}</option>)}
               </Select>
+
+              <Select id="alloc-teacher" label="Teacher" value={form.teacher_id} onChange={e => setForm(f => ({ ...f, teacher_id: e.target.value }))} required>
+                <option value="">Select teacher…</option>
+                {allTeachers.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+              </Select>
+              {selectedClassId && form.teacher_id && !isTeacherMapped && (
+                <p className="text-xs text-amber-400">Note: This teacher is not mapped to this class in Class Settings.</p>
+              )}
+
               <Select id="alloc-subject" label="Subject" value={form.subject_id} onChange={e => setForm(f => ({ ...f, subject_id: e.target.value }))} required>
                 <option value="">Select subject…</option>
                 {subjects.map(s => <option key={s.id} value={s.id}>{s.code} — {s.name}</option>)}
               </Select>
+              {selectedClassId && form.subject_id && !isSubjectRequired && (
+                <p className="text-xs text-amber-400">No subject requirements are defined for this class and subject yet. Please define them on the Requirements page first.</p>
+              )}
 
               <div className="flex gap-3 pt-2">
-                <Button type="submit" disabled={createMut.isPending}>{createMut.isPending && <Spinner size={14} />}Save</Button>
+                <Button type="submit" disabled={createMut.isPending || !form.teacher_id || !form.section_id || !form.subject_id}>{createMut.isPending && <Spinner size={14} />}Save</Button>
                 <Button type="button" variant="ghost" onClick={() => setModal(false)}>Cancel</Button>
               </div>
             </form>
@@ -151,7 +184,7 @@ export default function AllocationsPage() {
       {isLoading ? (
         <div className="flex justify-center py-20"><Spinner size={32} /></div>
       ) : allocs.length === 0 ? (
-        <EmptyState icon={<CalendarDays size={24} />} message="No allocations yet." action={<Button onClick={() => setModal(true)}><Plus size={14} />Add Allocation</Button>} />
+        <EmptyState icon={<CalendarDays size={24} />} message="No allocations yet." action={<Button onClick={() => { setModal(true); setForm({ teacher_id: '', section_id: '', subject_id: '' }); setApiError('') }}><Plus size={14} />Add Allocation</Button>} />
       ) : (
         <div className="flex flex-col gap-6">
           {Object.entries(grouped).sort(([a], [b]) => a.localeCompare(b)).map(([teacherName, items]) => {

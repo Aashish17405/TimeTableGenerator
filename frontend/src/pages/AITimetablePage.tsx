@@ -366,7 +366,7 @@ export default function AITimetablePage() {
               <li><strong>Teacher Capacity Limits:</strong> A teacher's total workload cannot exceed their weekly assigned capacity (max 54 periods globally).</li>
               <li><strong>Daily Subject Variety Limits:</strong> Weekly subject periods are evenly spread across days, capped at <code>ceil(weekly_periods / 6)</code> per day.</li>
               <li><strong>No Consecutive Handwriting (HW):</strong> Handwriting (HW) cannot be scheduled back-to-back on the same day.</li>
-              <li><strong>Capped PET Spread:</strong> Physical Education (PET) is limited to a maximum of 1 period per day.</li>
+              <li><strong>Capped PET Spread:</strong> Physical Education (PET) is limited to exactly 2 periods per week (maximum 1 period per day).</li>
               <li><strong>Period Index Variety:</strong> A subject cannot occupy the same period position (e.g., Period 1) more than 3 times in a week.</li>
             </ul>
           </Card>

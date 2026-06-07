@@ -1,0 +1,250 @@
+TIMETABLE GENERATION RULES
+
+====================================================
+HARD CONSTRAINTS (MUST ALWAYS BE SATISFIED)
+====================================================
+
+1. COMPLETE WEEK
+
+Each section has:
+- 6 working days
+- 9 periods per day
+
+Total:
+54 periods per week
+
+Every section must have exactly 54 scheduled periods.
+
+====================================================
+
+2. WEEKLY SUBJECT COUNTS MUST MATCH EXACTLY
+
+Each class has predefined weekly subject requirements.
+
+Example:
+
+Class VI
+
+FL = 12
+SL = 8
+ENG = 12
+MATH = 14
+PET = 2
+HW = 6
+
+The timetable must contain exactly these counts.
+
+No more.
+No less.
+
+====================================================
+
+3. TEACHER ALLOCATIONS MUST MATCH EXACTLY
+
+Teacher allocations are the source of truth.
+
+Example:
+
+Teacher: Archana
+Section: VIA
+Subject: FL
+Weekly Periods: 12
+
+The timetable must schedule exactly 12 FL periods for Archana in VIA.
+
+No more.
+No less.
+
+====================================================
+
+4. ONE SUBJECT PER SECTION PER PERIOD
+
+A section can have only one subject in a period.
+
+Example:
+
+Monday Period 1
+
+Allowed:
+Maths
+
+Not Allowed:
+Maths + English
+
+====================================================
+
+5. ONE TEACHER PER PERIOD
+
+A teacher cannot teach more than one section at the same time.
+
+Example:
+
+Monday Period 3
+
+Not Allowed:
+Archana teaching VIA and VIB simultaneously.
+
+====================================================
+
+6. NO EMPTY PERIODS
+
+Every timetable slot must contain a subject.
+
+All 54 slots must be filled.
+
+====================================================
+
+7. DAILY SUBJECT LIMIT
+
+A subject cannot exceed:
+
+ceil(weekly_periods / 6)
+
+Example:
+
+Maths = 14 periods/week
+
+Maximum Maths periods per day:
+
+ceil(14 / 6) = 3
+
+Therefore Maths cannot appear more than 3 times on a single day.
+
+====================================================
+
+8. CONSECUTIVE SUBJECT LIMIT
+
+A subject cannot be scheduled for more than 2 consecutive periods on the same day.
+
+Allowed:
+
+Maths
+Maths
+
+Not Allowed:
+
+Maths
+Maths
+Maths
+
+====================================================
+
+9. VALID TEACHER-SUBJECT ASSIGNMENT
+
+A teacher may only teach sections and subjects explicitly assigned in Teacher Allocations.
+
+Example:
+
+If Archana is assigned:
+
+VIA FL = 12
+
+Then Archana cannot be scheduled for:
+
+VIA Maths
+VIB English
+VIIA PET
+
+unless those allocations exist.
+
+====================================================
+
+10. WEEKLY TEACHER WORKLOAD LIMIT
+
+A teacher cannot exceed their assigned weekly workload.
+
+The total scheduled periods for a teacher must exactly match the sum of all their allocations.
+
+====================================================
+
+
+====================================================
+SOFT CONSTRAINTS (OPTIMIZE WHEN POSSIBLE)
+====================================================
+
+11. EVEN SUBJECT DISTRIBUTION
+
+Distribute subjects as evenly as possible across all 6 days.
+
+Avoid placing most periods of a subject on only one or two days.
+
+====================================================
+
+12. HANDWRITING DISTRIBUTION
+
+Spread Handwriting periods across multiple days.
+
+Avoid clustering them together.
+
+====================================================
+
+13. PET DISTRIBUTION
+
+Spread PET periods across the week.
+
+Avoid scheduling both PET periods on the same day.
+
+====================================================
+
+14. SUBJECT POSITION VARIETY
+
+Avoid placing the same subject in the same period slot every day.
+
+Bad Example:
+
+Mon P1 Maths
+Tue P1 Maths
+Wed P1 Maths
+Thu P1 Maths
+Fri P1 Maths
+Sat P1 Maths
+
+====================================================
+
+15. BALANCED TEACHER WORKLOAD
+
+Distribute a teacher's workload reasonably across the week.
+
+Avoid extremely overloaded days.
+
+====================================================
+
+16. MINIMIZE TEACHER GAPS
+
+Reduce unnecessary free periods between teaching periods.
+
+Preferred:
+
+P1 Teaching
+P2 Teaching
+P3 Teaching
+
+Less Preferred:
+
+P1 Teaching
+P2 Free
+P3 Teaching
+P4 Free
+P5 Teaching
+
+====================================================
+
+17. SPREAD HIGH-FREQUENCY SUBJECTS
+
+Subjects with high weekly counts such as:
+
+- FL
+- ENG
+- MATH
+
+should be spread throughout the week rather than concentrated on a few days.
+
+====================================================
+
+18. TIMETABLE QUALITY GOAL
+
+Generate the most balanced timetable possible while satisfying all hard constraints.
+
+Hard constraints can never be violated.
+
+Soft constraints should be optimized whenever possible.
