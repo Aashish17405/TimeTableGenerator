@@ -186,7 +186,8 @@ export default function TimetablesPage() {
 
   const handleExportPDF = () => {
     if (!activeSchoolId) return
-    const url = `/api/v1/timetable/export-pdf/${activeSchoolId}`
+    const baseUrl = import.meta.env.VITE_API_URL || '/api/v1'
+    const url = `${baseUrl}/timetable/export-pdf/${activeSchoolId}`
     const link = document.createElement('a')
     link.href = url
     link.download = `school_timetables_${activeSchoolId}.pdf`
