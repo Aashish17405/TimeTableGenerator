@@ -15,7 +15,10 @@ logger = logging.getLogger("app.solver")
 class TimetableGenerationError(Exception):
     pass
 
-def generate_timetables(sections_input: list[dict[str, Any]]) -> dict[str, Any]:
+def generate_timetables(
+    sections_input: list[dict[str, Any]],
+    locked_teacher_slots: dict[str, set[int]] | None = None,
+) -> dict[str, Any]:
     if not sections_input:
         raise TimetableGenerationError("At least one section must be selected.")
         
@@ -49,6 +52,11 @@ def generate_timetables(sections_input: list[dict[str, Any]]) -> dict[str, Any]:
                 f"but received {total_p}."
             )
         section_allocations[sec_id] = allocs
+
+    # Add locked slots count to teacher loads
+    if locked_teacher_slots:
+        for t_name, slots in locked_teacher_slots.items():
+            teacher_loads[t_name] = teacher_loads.get(t_name, 0) + len(slots)
 
     # Verify teacher limits globally before starting
     overloaded_teachers = [t for t, count in teacher_loads.items() if count > TOTAL_SLOTS]
@@ -88,10 +96,14 @@ def generate_timetables(sections_input: list[dict[str, Any]]) -> dict[str, Any]:
                     if alloc["teacher_name"] == teacher:
                         teacher_vars.append(X[sec_id][a_idx][t])
             if teacher_vars:
-                model.Add(sum(teacher_vars) <= 1)
+                if locked_teacher_slots and teacher in locked_teacher_slots and t in locked_teacher_slots[teacher]:
+                    model.Add(sum(teacher_vars) == 0)
+                else:
+                    model.Add(sum(teacher_vars) <= 1)
 
     # 4. Soft Constraints formulated as Hard Limits
     for sec_id, allocs in section_allocations.items():
+        # First, apply per-allocation limits
         for a_idx, alloc in enumerate(allocs):
             subj_code = alloc["subject_code"].upper()
             periods = alloc["periods"]
@@ -101,20 +113,8 @@ def generate_timetables(sections_input: list[dict[str, Any]]) -> dict[str, Any]:
             for d in range(len(DAYS)):
                 day_vars = [X[sec_id][a_idx][d * PERIODS_PER_DAY + p] for p in range(PERIODS_PER_DAY)]
                 model.Add(sum(day_vars) <= max_daily)
-                
-                # PET Spread (max 1 per day)
-                if "PET" in subj_code:
-                    model.Add(sum(day_vars) <= 1)
-                
-            # Handwriting Spread: Avoid consecutive HW
-            if "HW" in subj_code:
-                for d in range(len(DAYS)):
-                    for p in range(PERIODS_PER_DAY - 1):
-                        slot1 = d * PERIODS_PER_DAY + p
-                        slot2 = slot1 + 1
-                        model.Add(X[sec_id][a_idx][slot1] + X[sec_id][a_idx][slot2] <= 1)
                         
-            # Consecutive subject limit: Max 2 consecutive periods of any subject on the same day
+            # Consecutive subject limit: Max 2 consecutive periods of ANY specific allocation on the same day
             for d in range(len(DAYS)):
                 for p in range(PERIODS_PER_DAY - 2):
                     slot1 = d * PERIODS_PER_DAY + p
@@ -127,6 +127,30 @@ def generate_timetables(sections_input: list[dict[str, Any]]) -> dict[str, Any]:
             for p in range(PERIODS_PER_DAY):
                 p_vars = [X[sec_id][a_idx][d * PERIODS_PER_DAY + p] for d in range(len(DAYS))]
                 model.Add(sum(p_vars) <= 3) # Max 3 times in the same period index
+
+        # Now, apply aggregate limits across all allocations of specific subjects (e.g. if multiple teachers teach PET to the same section)
+        pet_indices = [i for i, a in enumerate(allocs) if "PET" in a["subject_code"].upper()]
+        if pet_indices:
+            for d in range(len(DAYS)):
+                # Daily limit: Max 1 PET period per day
+                pet_day_vars = [
+                    X[sec_id][a_idx][d * PERIODS_PER_DAY + p]
+                    for a_idx in pet_indices
+                    for p in range(PERIODS_PER_DAY)
+                ]
+                model.Add(sum(pet_day_vars) <= 1)
+                
+                # Rule: PET must never be in the 1st period (index 0) of the day
+                model.Add(sum(X[sec_id][a_idx][d * PERIODS_PER_DAY + 0] for a_idx in pet_indices) == 0)
+
+        hw_indices = [i for i, a in enumerate(allocs) if "HW" in a["subject_code"].upper()]
+        if hw_indices:
+            for d in range(len(DAYS)):
+                for p in range(PERIODS_PER_DAY - 1):
+                    slot1 = d * PERIODS_PER_DAY + p
+                    slot2 = slot1 + 1
+                    model.Add(sum(X[sec_id][a_idx][slot1] for a_idx in hw_indices) + 
+                              sum(X[sec_id][a_idx][slot2] for a_idx in hw_indices) <= 1)
 
     solver = cp_model.CpSolver()
     solver.parameters.max_time_in_seconds = 15.0

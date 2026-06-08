@@ -75,11 +75,11 @@ export default function DashboardPage() {
             { step: 6, label: 'Create Allocations', sub: 'Assign teachers to sections', to: '/allocations', done: (allocs?.length ?? 0) > 0 },
           ].map(({ step, label, sub, to, done }) => (
             <li key={step} className="flex items-center gap-4 group">
-              <div className={`w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs font-bold shrink-0 transition-colors ${done ? 'bg-emerald-900/30 border-emerald-600 text-emerald-400' : 'border-[var(--color-surface-500)] text-[var(--color-text-muted)]'}`}>
+              <div className={`w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs font-bold shrink-0 transition-colors ${done ? 'bg-[var(--success-bg)] border-[var(--success-border)] text-[var(--success-text)]' : 'border-[var(--color-surface-500)] text-[var(--color-text-muted)]'}`}>
                 {done ? '✓' : step}
               </div>
               <Link to={to} className="flex-1 min-w-0">
-                <p className={`text-sm font-medium group-hover:text-[var(--color-brand-300)] transition-colors ${done ? 'text-[var(--color-text-secondary)] line-through decoration-emerald-700' : 'text-[var(--color-text-primary)]'}`}>{label}</p>
+                <p className={`text-sm font-medium group-hover:text-[var(--color-brand-300)] transition-colors ${done ? 'text-[var(--color-text-secondary)] line-through decoration-[var(--success-strike)]' : 'text-[var(--color-text-primary)]'}`}>{label}</p>
                 <p className="text-xs text-[var(--color-text-muted)] truncate">{sub}</p>
               </Link>
             </li>

@@ -94,7 +94,7 @@ export default function RequirementsPage() {
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-medium text-[var(--color-text-secondary)]">Weekly periods assigned</span>
             <div className="flex items-center gap-2">
-              <span className={`text-sm font-bold ${total > TOTAL ? 'text-red-400' : total === TOTAL ? 'text-emerald-400' : 'text-[var(--color-text-primary)]'}`}>{total}</span>
+              <span className={`text-sm font-bold ${total > TOTAL ? 'text-[var(--danger-text)]' : total === TOTAL ? 'text-[var(--success-text)]' : 'text-[var(--color-text-primary)]'}`}>{total}</span>
               <span className="text-xs text-[var(--color-text-muted)]">/ {TOTAL}</span>
             </div>
           </div>
@@ -155,8 +155,8 @@ export default function RequirementsPage() {
       ) : reqs.length === 0 ? (
         <EmptyState icon={<ClipboardList size={24} />} message="No requirements yet." action={<Button onClick={() => setModal(true)}><Plus size={14} />Add Requirement</Button>} />
       ) : (
-        <Card>
-          <table className="w-full text-sm">
+        <Card className="overflow-x-auto">
+          <table className="w-full min-w-[500px] text-sm">
             <thead>
               <tr className="border-b border-[var(--color-surface-600)]">
                 <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Class</th>
@@ -181,7 +181,7 @@ export default function RequirementsPage() {
                     <span className="font-semibold text-[var(--color-text-primary)]">{r.periods_per_week}</span>
                   </td>
                   <td className="px-5 py-3">
-                    <button id={`delete-req-${r.id}`} onClick={() => setDeleteTarget(r)} className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-red-400 hover:bg-red-900/20 transition-colors">
+                    <button id={`delete-req-${r.id}`} onClick={() => setDeleteTarget(r)} className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--hover-delete-text)] hover:bg-[var(--hover-delete-bg)] transition-colors">
                       <Trash2 size={14} />
                     </button>
                   </td>

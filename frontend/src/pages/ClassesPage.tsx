@@ -115,8 +115,8 @@ function TeacherMappingModal({ schoolClass, schoolId, onClose }: {
                     key={teacher.id}
                     className={`flex items-center gap-3 rounded-lg border px-4 py-3 transition-all ${
                       isMapped
-                        ? 'border-[var(--color-brand-600)]/50 bg-[var(--color-brand-900)]/20'
-                        : 'border-[var(--color-surface-600)] bg-[var(--color-surface-700)]'
+                        ? 'border-[var(--mapped-border)] bg-[var(--mapped-bg)]'
+                        : 'border-[var(--unmapped-border)] bg-[var(--unmapped-bg)]'
                     }`}
                   >
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--color-brand-600)] to-[var(--color-brand-800)] flex items-center justify-center shrink-0">
@@ -130,7 +130,7 @@ function TeacherMappingModal({ schoolClass, schoolId, onClose }: {
                       <button
                         onClick={() => mapping && removeMut.mutate(mapping.id)}
                         disabled={removeMut.isPending}
-                        className="px-3 py-1.5 text-xs font-medium rounded-lg border border-red-800/40 text-red-400 bg-red-900/20 hover:bg-red-900/40 transition-colors"
+                        className="px-3 py-1.5 text-xs font-medium rounded-lg border border-[var(--remove-btn-border)] text-[var(--remove-btn-text)] bg-[var(--remove-btn-bg)] hover:bg-[var(--remove-btn-bg-hover)] transition-colors"
                       >
                         Remove
                       </button>
@@ -138,7 +138,7 @@ function TeacherMappingModal({ schoolClass, schoolId, onClose }: {
                       <button
                         onClick={() => addMut.mutate({ teacher_id: teacher.id, class_id: schoolClass.id })}
                         disabled={addMut.isPending}
-                        className="px-3 py-1.5 text-xs font-medium rounded-lg border border-[var(--color-brand-700)]/50 text-[var(--color-brand-300)] bg-[var(--color-brand-900)]/20 hover:bg-[var(--color-brand-900)]/40 transition-colors"
+                        className="px-3 py-1.5 text-xs font-medium rounded-lg border border-[var(--assign-btn-border)] text-[var(--assign-btn-text)] bg-[var(--assign-btn-bg)] hover:bg-[var(--assign-btn-bg-hover)] transition-colors"
                       >
                         Add
                       </button>
@@ -242,23 +242,23 @@ export default function ClassesPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {classes.map(c => (
             <Card key={c.id} className="p-5 flex flex-col items-center text-center group hover:border-[var(--color-surface-500)] transition-colors relative">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--color-brand-700)]/40 to-[var(--color-brand-900)]/40 border border-[var(--color-brand-700)]/30 flex items-center justify-center mb-3">
-                <span className="text-lg font-bold text-[var(--color-brand-300)]">{c.name}</span>
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--color-brand-700)]/15 to-[var(--color-brand-900)]/25 border border-[var(--color-brand-700)]/30 flex items-center justify-center mb-3">
+                <span className="text-lg font-bold text-[var(--color-brand-500)]">{c.name}</span>
               </div>
               <p className="text-xs text-[var(--color-text-muted)]">Order #{c.display_order}</p>
               <button
                 id={`manage-teachers-${c.id}`}
                 onClick={() => setMappingTarget(c)}
-                className="mt-3 flex items-center gap-1.5 text-[10px] font-medium text-[var(--color-brand-400)] hover:text-[var(--color-brand-300)] transition-colors"
+                className="mt-3 flex items-center gap-1.5 text-[10px] font-medium text-[var(--color-brand-500)] hover:text-[var(--color-brand-600)] dark:text-[var(--color-brand-400)] dark:hover:text-[var(--color-brand-300)] transition-colors"
               >
                 <Users size={11} />
                 Manage Teachers
               </button>
-              <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="absolute top-2 right-2 flex gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                 <button id={`edit-class-${c.id}`} onClick={() => { setEditItem(c); setApiError('') }} className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-600)] transition-colors">
                   <Pencil size={12} />
                 </button>
-                <button id={`delete-class-${c.id}`} onClick={() => setDeleteTarget(c)} className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-red-400 hover:bg-red-900/20 transition-colors">
+                <button id={`delete-class-${c.id}`} onClick={() => setDeleteTarget(c)} className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--hover-delete-text)] hover:bg-[var(--hover-delete-bg)] transition-colors">
                   <Trash2 size={12} />
                 </button>
               </div>

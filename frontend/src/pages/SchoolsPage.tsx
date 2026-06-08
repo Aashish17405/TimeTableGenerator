@@ -67,11 +67,11 @@ function SchoolCard({ school, onEdit, onDelete, onSelect, isActive }: {
             <p className="text-xs text-[var(--color-text-muted)] mt-0.5 italic">No address</p>
           )}
         </div>
-        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+        <div className="flex gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity shrink-0">
           <button id={`edit-school-${school.id}`} onClick={onEdit} className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-600)] transition-colors">
             <Pencil size={13} />
           </button>
-          <button id={`delete-school-${school.id}`} onClick={onDelete} className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-red-400 hover:bg-red-900/20 transition-colors">
+          <button id={`delete-school-${school.id}`} onClick={onDelete} className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--hover-delete-text)] hover:bg-[var(--hover-delete-bg)] transition-colors">
             <Trash2 size={13} />
           </button>
         </div>

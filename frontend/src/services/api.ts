@@ -10,7 +10,7 @@ import type {
   SubjectRequirement, SubjectRequirementCreate, SubjectRequirementUpdate,
   ClassRequirementSummary,
   TeacherAllocation, TeacherAllocationCreate, TeacherAllocationUpdate,
-  TimetableGenerateRequest, TimetableGenerateResponse,
+  StoredTimetableResponse, TimetableGenerateResponse,
 } from '../types'
 
 // ─── Schools ──────────────────────────────────────────────────────────────────
@@ -92,8 +92,14 @@ export const allocationsApi = {
 
 // ─── Timetable ─────────────────────────────────────────────────────────────────
 export const timetableApi = {
-  generate: (payload: TimetableGenerateRequest) =>
-    api.post<TimetableGenerateResponse>('/timetable/generate', payload).then(r => r.data),
+  generateAll: (schoolId: number) =>
+    api.post<TimetableGenerateResponse>('/timetable/generate-all', { school_id: schoolId }).then(r => r.data),
+  regenerateClass: (schoolId: number, classId: number) =>
+    api.post<TimetableGenerateResponse>('/timetable/regenerate-class', { school_id: schoolId, class_id: classId }).then(r => r.data),
+  getStored: (schoolId: number) =>
+    api.get<StoredTimetableResponse>(`/timetable/stored/${schoolId}`).then(r => r.data),
+  deleteStored: (schoolId: number) =>
+    api.delete(`/timetable/stored/${schoolId}`).then(r => r.data),
 }
 
 export const aiTimetableApi = {

@@ -9,8 +9,13 @@ import {
   Spinner, EmptyState, ErrorAlert, ConfirmDelete,
 } from '../components/ui'
 
-const SUBJECT_COLORS: Record<string, 'blue' | 'violet' | 'green' | 'amber'> = {
-  FL: 'blue', SL: 'violet', ENG: 'green', MATH: 'amber',
+const SUBJECT_COLORS: Record<string, 'blue' | 'violet' | 'green' | 'amber' | 'pink' | 'cyan' | 'default'> = {
+  FL: 'blue',
+  SL: 'violet',
+  ENG: 'green',
+  MATH: 'amber',
+  PET: 'pink',
+  HW: 'cyan',
 }
 
 function SubjectForm({
@@ -164,7 +169,7 @@ export default function SubjectsPage() {
             <Card key={s.id} className="p-5 hover:border-[var(--color-surface-500)] transition-colors group">
               <div className="flex items-start justify-between mb-3">
                 <Badge color={SUBJECT_COLORS[s.code] ?? 'default'}>{s.code}</Badge>
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                   <button
                     id={`edit-subject-${s.id}`}
                     onClick={() => { setEditSubject(s); setApiError('') }}
@@ -175,7 +180,7 @@ export default function SubjectsPage() {
                   <button
                     id={`delete-subject-${s.id}`}
                     onClick={() => setDeleteTarget(s)}
-                    className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-red-400 hover:bg-red-900/20 transition-colors"
+                    className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--hover-delete-text)] hover:bg-[var(--hover-delete-bg)] transition-colors"
                   >
                     <Trash2 size={14} />
                   </button>

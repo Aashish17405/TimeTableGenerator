@@ -199,8 +199,8 @@ export default function AllocationsPage() {
                   <div className="flex-1 h-px bg-[var(--color-surface-600)]" />
                   <Badge color="amber">{total} periods/week</Badge>
                 </div>
-                <Card>
-                  <table className="w-full text-sm">
+                <Card className="overflow-x-auto">
+                  <table className="w-full min-w-[500px] text-sm">
                     <thead>
                       <tr className="border-b border-[var(--color-surface-600)]">
                         <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Section</th>
@@ -223,7 +223,7 @@ export default function AllocationsPage() {
                           </td>
                           <td className="px-5 py-3 text-right font-semibold text-[var(--color-text-primary)]">{a.periods_per_week}</td>
                           <td className="px-5 py-3">
-                            <button id={`delete-alloc-${a.id}`} onClick={() => setDeleteTarget(a)} className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-red-400 hover:bg-red-900/20 transition-colors">
+                            <button id={`delete-alloc-${a.id}`} onClick={() => setDeleteTarget(a)} className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--hover-delete-text)] hover:bg-[var(--hover-delete-bg)] transition-colors">
                               <Trash2 size={14} />
                             </button>
                           </td>

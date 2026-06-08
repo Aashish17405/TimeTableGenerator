@@ -116,6 +116,7 @@ export interface TeacherAllocationUpdate { periods_per_week?: number }
 // ─── Timetable Generation ──────────────────────────────────────────────────────
 export interface TimetablePeriod {
   subject_code: string
+  subject_name: string
   teacher_name: string
 }
 
@@ -126,13 +127,29 @@ export interface SectionTimetable {
   }
 }
 
-export interface TimetableGenerateResponse {
+export interface StoredSectionTimetable extends SectionTimetable {
+  class_name: string
+  class_id: number
+}
+
+export interface StoredTimetableResponse {
+  generated_at: string | null
   timetables: {
-    [sectionId: string]: SectionTimetable
+    [sectionId: string]: StoredSectionTimetable
   }
 }
 
-export interface TimetableGenerateRequest {
-  section_ids?: number[]
-  class_ids?: number[]
+export interface TimetableGenerateAllRequest {
+  school_id: number
+}
+
+export interface TimetableRegenerateClassRequest {
+  school_id: number
+  class_id: number
+}
+
+export interface TimetableGenerateResponse {
+  success: boolean
+  generated_at: string
+  section_count: number
 }

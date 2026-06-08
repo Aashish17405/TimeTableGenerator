@@ -34,6 +34,14 @@ from app.schemas.teacher_class_mapping import (
     TeacherClassMappingRead,
     TeacherClassMappingReadDetailed,
 )
+from app.schemas.timetable import (
+    TimetableGenerateAllRequest,
+    TimetableRegenerateClassRequest,
+    TimetableGenerateResponse,
+    TimetablePeriodSchema,
+    SectionTimetableSchema,
+    StoredTimetableResponse,
+)
 
 __all__ = [
     "SubjectBase", "SubjectCreate", "SubjectUpdate", "SubjectRead",
@@ -46,4 +54,6 @@ __all__ = [
     "TeacherAllocationBase", "TeacherAllocationCreate", "TeacherAllocationUpdate",
     "TeacherAllocationRead", "TeacherAllocationReadDetailed",
     "TeacherClassMappingCreate", "TeacherClassMappingRead", "TeacherClassMappingReadDetailed",
+    "TimetableGenerateAllRequest", "TimetableRegenerateClassRequest", "TimetableGenerateResponse",
+    "TimetablePeriodSchema", "SectionTimetableSchema", "StoredTimetableResponse",
 ]

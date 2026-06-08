@@ -10,6 +10,7 @@ from app.models.teacher import Teacher
 from app.models.subject_requirement import SubjectRequirement
 from app.models.teacher_allocation import TeacherAllocation
 from app.models.teacher_class_mapping import TeacherClassMapping
+from app.models.timetable_entry import TimetableEntry
 
 __all__ = [
     "School",
@@ -20,4 +21,5 @@ __all__ = [
     "SubjectRequirement",
     "TeacherAllocation",
     "TeacherClassMapping",
+    "TimetableEntry",
 ]

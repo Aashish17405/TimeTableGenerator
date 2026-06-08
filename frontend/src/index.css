@@ -1,27 +1,289 @@
 @import "tailwindcss";
 
+:root {
+  /* Default Dark Mode Theme */
+  --brand-50: #f0f4ff;
+  --brand-100: #e0eaff;
+  --brand-200: #c7d7fe;
+  --brand-300: #a4bcfd;
+  --brand-400: #8098f9;
+  --brand-500: #6172f3;
+  --brand-600: #444ce7;
+  --brand-700: #3538cd;
+  --brand-800: #2d31a6;
+  --brand-900: #2d3282;
+
+  --surface-900: #0d0f1a;
+  --surface-800: #131626;
+  --surface-700: #1a1d31;
+  --surface-600: #22263d;
+  --surface-500: #2d3154;
+  --surface-400: #3d4270;
+
+  --text-primary: #f0f2ff;
+  --text-secondary: #9da3c4;
+  --text-muted: #5c6290;
+
+  /* Badge colors - Dark Mode */
+  --badge-blue-bg: rgba(30, 58, 138, 0.3);
+  --badge-blue-text: #93c5fd;
+  --badge-blue-border: rgba(30, 58, 138, 0.4);
+
+  --badge-violet-bg: rgba(88, 28, 135, 0.3);
+  --badge-violet-text: #d8b4fe;
+  --badge-violet-border: rgba(107, 33, 168, 0.4);
+
+  --badge-green-bg: rgba(6, 78, 59, 0.3);
+  --badge-green-text: #6ee7b7;
+  --badge-green-border: rgba(6, 95, 70, 0.4);
+
+  --badge-amber-bg: rgba(120, 53, 4, 0.3);
+  --badge-amber-text: #fde68a;
+  --badge-amber-border: rgba(146, 64, 14, 0.4);
+
+  --badge-default-bg: #22263d;
+  --badge-default-text: #9da3c4;
+  --badge-default-border: #2d3154;
+
+  /* Danger/Error colors - Dark Mode */
+  --danger-bg: rgba(127, 29, 29, 0.2);
+  --danger-bg-hover: rgba(127, 29, 29, 0.4);
+  --danger-text: #f87171;
+  --danger-border: rgba(127, 29, 29, 0.4);
+
+  /* Inline delete/remove hover states - Dark Mode */
+  --hover-delete-text: #f87171;
+  --hover-delete-bg: rgba(127, 29, 29, 0.2);
+
+  /* Success / done states - Dark Mode */
+  --success-bg: rgba(6, 78, 59, 0.3);
+  --success-text: #34d399;
+  --success-border: rgba(6, 95, 70, 0.5);
+  --success-strike: #047857;
+
+  /* Mapped item highlight (brand tinted row) - Dark Mode */
+  --mapped-bg: rgba(53, 56, 205, 0.15);
+  --mapped-border: rgba(68, 76, 231, 0.5);
+  --mapped-icon-bg: rgba(53, 56, 205, 0.35);
+  --mapped-icon-text: #a4bcfd;
+
+  /* Unmapped / neutral item row - Dark Mode */
+  --unmapped-bg: #1a1d31;
+  --unmapped-border: #22263d;
+  --unmapped-icon-bg: #22263d;
+  --unmapped-icon-text: #5c6290;
+
+  /* Remove button (inside mapped rows) - Dark Mode */
+  --remove-btn-bg: rgba(127, 29, 29, 0.2);
+  --remove-btn-bg-hover: rgba(127, 29, 29, 0.4);
+  --remove-btn-text: #f87171;
+  --remove-btn-border: rgba(127, 29, 29, 0.4);
+
+  /* Assign/Add button (inside unmapped rows) - Dark Mode */
+  --assign-btn-bg: rgba(53, 56, 205, 0.2);
+  --assign-btn-bg-hover: rgba(53, 56, 205, 0.35);
+  --assign-btn-text: #a4bcfd;
+  --assign-btn-border: rgba(53, 56, 205, 0.5);
+
+  /* Timetable break row - Dark Mode */
+  --break-row-bg: rgba(13, 15, 26, 0.6);
+  --break-row-text: #a4bcfd;
+  --break-row-cell-bg: #1a1d31;
+
+  /* Subject grid cell colors - Dark Mode */
+  /* MATH - Soft Emerald */
+  --color-subj-math-bg: rgba(52, 211, 153, 0.15);
+  --color-subj-math-text: #34d399;
+  --color-subj-math-border: rgba(52, 211, 153, 0.3);
+
+  /* FL - Soft Blue */
+  --color-subj-fl-bg: rgba(96, 165, 250, 0.15);
+  --color-subj-fl-text: #60a5fa;
+  --color-subj-fl-border: rgba(96, 165, 250, 0.3);
+
+  /* SL - Soft Purple */
+  --color-subj-sl-bg: rgba(192, 132, 252, 0.15);
+  --color-subj-sl-text: #c084fc;
+  --color-subj-sl-border: rgba(192, 132, 252, 0.3);
+
+  /* ENG - Soft Red/Rose */
+  --color-subj-eng-bg: rgba(248, 113, 113, 0.15);
+  --color-subj-eng-text: #f87171;
+  --color-subj-eng-border: rgba(248, 113, 113, 0.3);
+
+  /* PET - Soft Amber/Orange */
+  --color-subj-pet-bg: rgba(251, 191, 36, 0.15);
+  --color-subj-pet-text: #fbbf24;
+  --color-subj-pet-border: rgba(251, 191, 36, 0.3);
+
+  /* HW - Soft Teal/Cyan */
+  --color-subj-hw-bg: rgba(45, 212, 191, 0.15);
+  --color-subj-hw-text: #2dd4bf;
+  --color-subj-hw-border: rgba(45, 212, 191, 0.3);
+
+  /* Badge colors - Dark Mode additions */
+  --badge-pink-bg: rgba(219, 39, 119, 0.2);
+  --badge-pink-text: #f472b6;
+  --badge-pink-border: rgba(219, 39, 119, 0.4);
+
+  --badge-cyan-bg: rgba(6, 182, 212, 0.2);
+  --badge-cyan-text: #22d3ee;
+  --badge-cyan-border: rgba(6, 182, 212, 0.4);
+}
+
+[data-theme="light"] {
+  /* Light Mode Theme */
+  --brand-50: #eef2ff;
+  --brand-100: #e0e7ff;
+  --brand-200: #c7d2fe;
+  --brand-300: #a5b4fc;
+  --brand-400: #818cf8;
+  --brand-500: #4f46e5;
+  --brand-600: #4338ca;
+  --brand-700: #3730a3;
+  --brand-800: #1e1b4b;
+  --brand-900: #0f0a2e;
+
+  --surface-900: #f8fafc; /* slate-50 */
+  --surface-800: #ffffff; /* white */
+  --surface-700: #f1f5f9; /* slate-100 */
+  --surface-600: #e2e8f0; /* slate-200 */
+  --surface-500: #cbd5e1; /* slate-300 */
+  --surface-400: #94a3b8; /* slate-400 */
+
+  --text-primary: #0f172a; /* slate-900 */
+  --text-secondary: #334155; /* slate-700 */
+  --text-muted: #64748b; /* slate-500 */
+
+  /* Badge colors - Light Mode */
+  --badge-blue-bg: #eff6ff;
+  --badge-blue-text: #1d4ed8;
+  --badge-blue-border: #bfdbfe;
+
+  --badge-violet-bg: #faf5ff;
+  --badge-violet-text: #7e22ce;
+  --badge-violet-border: #e9d5ff;
+
+  --badge-green-bg: #ecfdf5;
+  --badge-green-text: #047857;
+  --badge-green-border: #a7f3d0;
+
+  --badge-amber-bg: #fffbeb;
+  --badge-amber-text: #b45309;
+  --badge-amber-border: #fde68a;
+
+  --badge-default-bg: #f1f5f9;
+  --badge-default-text: #475569;
+  --badge-default-border: #e2e8f0;
+
+  /* Danger/Error colors - Light Mode */
+  --danger-bg: #fef2f2;
+  --danger-bg-hover: #fee2e2;
+  --danger-text: #dc2626;
+  --danger-border: #fca5a5;
+
+  /* Inline delete/remove hover states - Light Mode */
+  --hover-delete-text: #dc2626;
+  --hover-delete-bg: #fee2e2;
+
+  /* Success / done states - Light Mode */
+  --success-bg: #ecfdf5;
+  --success-text: #047857;
+  --success-border: #a7f3d0;
+  --success-strike: #059669;
+
+  /* Mapped item highlight - Light Mode */
+  --mapped-bg: #eef2ff;
+  --mapped-border: #c7d2fe;
+  --mapped-icon-bg: #e0e7ff;
+  --mapped-icon-text: #4338ca;
+
+  /* Unmapped / neutral item row - Light Mode */
+  --unmapped-bg: #f8fafc;
+  --unmapped-border: #e2e8f0;
+  --unmapped-icon-bg: #f1f5f9;
+  --unmapped-icon-text: #94a3b8;
+
+  /* Remove button - Light Mode */
+  --remove-btn-bg: #fef2f2;
+  --remove-btn-bg-hover: #fee2e2;
+  --remove-btn-text: #dc2626;
+  --remove-btn-border: #fca5a5;
+
+  /* Assign/Add button - Light Mode */
+  --assign-btn-bg: #eef2ff;
+  --assign-btn-bg-hover: #e0e7ff;
+  --assign-btn-text: #4338ca;
+  --assign-btn-border: #c7d2fe;
+
+  /* Timetable break row - Light Mode */
+  --break-row-bg: #f1f5f9;
+  --break-row-text: #4338ca;
+  --break-row-cell-bg: #e2e8f0;
+
+  /* Subject grid cell colors - Light Mode */
+  /* MATH - Soft Emerald */
+  --color-subj-math-bg: #e6f4ea;
+  --color-subj-math-text: #137333;
+  --color-subj-math-border: #c4eed0;
+
+  /* FL - Soft Blue */
+  --color-subj-fl-bg: #e8f0fe;
+  --color-subj-fl-text: #1a73e8;
+  --color-subj-fl-border: #d2e3fc;
+
+  /* SL - Soft Purple */
+  --color-subj-sl-bg: #f3e8ff;
+  --color-subj-sl-text: #7e22ce;
+  --color-subj-sl-border: #e9d5ff;
+
+  /* ENG - Soft Pink/Rose */
+  --color-subj-eng-bg: #fce8e6;
+  --color-subj-eng-text: #c5221f;
+  --color-subj-eng-border: #fad2cf;
+
+  /* PET - Soft Amber/Orange */
+  --color-subj-pet-bg: #fef7e0;
+  --color-subj-pet-text: #b06000;
+  --color-subj-pet-border: #feebc8;
+
+  /* HW - Soft Teal/Cyan */
+  --color-subj-hw-bg: #e4f7fb;
+  --color-subj-hw-text: #007b83;
+  --color-subj-hw-border: #cbf0f5;
+
+  /* Badge colors - Light Mode additions */
+  --badge-pink-bg: #fdf2f8;
+  --badge-pink-text: #db2777;
+  --badge-pink-border: #fbcfe8;
+
+  --badge-cyan-bg: #ecfeff;
+  --badge-cyan-text: #0891b2;
+  --badge-cyan-border: #cffafe;
+}
+
 @theme {
-  --color-brand-50: #f0f4ff;
-  --color-brand-100: #e0eaff;
-  --color-brand-200: #c7d7fe;
-  --color-brand-300: #a4bcfd;
-  --color-brand-400: #8098f9;
-  --color-brand-500: #6172f3;
-  --color-brand-600: #444ce7;
-  --color-brand-700: #3538cd;
-  --color-brand-800: #2d31a6;
-  --color-brand-900: #2d3282;
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
 
-  --color-surface-900: #0d0f1a;
-  --color-surface-800: #131626;
-  --color-surface-700: #1a1d31;
-  --color-surface-600: #22263d;
-  --color-surface-500: #2d3154;
-  --color-surface-400: #3d4270;
+  --color-surface-900: var(--surface-900);
+  --color-surface-800: var(--surface-800);
+  --color-surface-700: var(--surface-700);
+  --color-surface-600: var(--surface-600);
+  --color-surface-500: var(--surface-500);
+  --color-surface-400: var(--surface-400);
 
-  --color-text-primary: #f0f2ff;
-  --color-text-secondary: #9da3c4;
-  --color-text-muted: #5c6290;
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
 
   --font-family-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
@@ -40,6 +302,7 @@ body {
   background-color: var(--color-surface-900);
   color: var(--color-text-primary);
   min-height: 100vh;
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
 /* Scrollbar */

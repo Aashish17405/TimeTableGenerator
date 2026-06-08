@@ -139,7 +139,7 @@ export default function SectionsPage() {
                     <button
                       id={`delete-section-${s.id}`}
                       onClick={() => setDeleteTarget(s)}
-                      className="ml-2 p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-red-400 hover:bg-red-900/20 transition-colors opacity-0 group-hover:opacity-100"
+                      className="ml-2 p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--hover-delete-text)] hover:bg-[var(--hover-delete-bg)] transition-colors opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
                     >
                       <Trash2 size={14} />
                     </button>

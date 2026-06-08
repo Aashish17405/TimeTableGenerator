@@ -7,13 +7,13 @@ import { Badge, Button, Card, PageHeader, Spinner } from '../components/ui'
 import { useSchool } from '../features/school/SchoolContext'
 
 function getSubjectColor(code: string) {
-  const normalizedCode = code.toUpperCase()
-  if (normalizedCode.includes('MATH')) return 'bg-emerald-950/40 text-emerald-300 border-emerald-800/40'
-  if (normalizedCode.includes('FL')) return 'bg-blue-950/40 text-blue-300 border-blue-800/40'
-  if (normalizedCode.includes('SL')) return 'bg-purple-950/40 text-purple-300 border-purple-800/40'
-  if (normalizedCode.includes('ENG')) return 'bg-indigo-950/40 text-indigo-300 border-indigo-800/40'
-  if (normalizedCode.includes('PET')) return 'bg-amber-950/40 text-amber-300 border-amber-800/40'
-  if (normalizedCode.includes('HW')) return 'bg-teal-950/40 text-teal-300 border-teal-800/40'
+  const normalizedCode = code.toUpperCase().trim()
+  if (normalizedCode === 'MATH') return 'bg-[var(--color-subj-math-bg)] text-[var(--color-subj-math-text)] border-[var(--color-subj-math-border)]'
+  if (normalizedCode === 'FL') return 'bg-[var(--color-subj-fl-bg)] text-[var(--color-subj-fl-text)] border-[var(--color-subj-fl-border)]'
+  if (normalizedCode === 'SL') return 'bg-[var(--color-subj-sl-bg)] text-[var(--color-subj-sl-text)] border-[var(--color-subj-sl-border)]'
+  if (normalizedCode === 'ENG') return 'bg-[var(--color-subj-eng-bg)] text-[var(--color-subj-eng-text)] border-[var(--color-subj-eng-border)]'
+  if (normalizedCode === 'PET') return 'bg-[var(--color-subj-pet-bg)] text-[var(--color-subj-pet-text)] border-[var(--color-subj-pet-border)]'
+  if (normalizedCode === 'HW') return 'bg-[var(--color-subj-hw-bg)] text-[var(--color-subj-hw-text)] border-[var(--color-subj-hw-border)]'
   return 'bg-[var(--color-surface-700)] text-[var(--color-text-secondary)] border-[var(--color-surface-600)]'
 }
 
@@ -294,58 +294,66 @@ export default function AITimetablePage() {
               </div>
 
               {activeTimetable ? (
-                <div className="overflow-x-auto">
-                  <table className="min-w-[800px] w-full border-collapse border border-[var(--color-surface-600)] text-xs">
+                <div className="overflow-x-auto rounded-xl border border-[var(--color-surface-600)] shadow-md">
+                  <table className="min-w-[1000px] w-full border-collapse text-xs">
                     <thead>
                       <tr className="border-b border-[var(--color-surface-600)] bg-[var(--color-surface-700)] text-[var(--color-text-secondary)]">
-                        <th className="w-28 border-r border-[var(--color-surface-600)] px-4 py-3 text-left font-semibold">Time Slot</th>
-                        {days.map((day) => (
-                          <th key={day} className="px-4 py-3 text-center font-semibold">{day}</th>
+                        <th className="w-28 border-r border-[var(--color-surface-600)] px-4 py-3 text-left font-semibold sticky left-0 bg-[var(--color-surface-700)] z-20 shadow-[2px_0_5px_rgba(0,0,0,0.1)]">
+                          Day / Period
+                        </th>
+                        {rows.map((row, idx) => (
+                          <th key={idx} className="px-4 py-3 text-center font-semibold min-w-[120px]">
+                            <div className="font-semibold text-[var(--color-text-primary)]">{row.label}</div>
+                            <div className="mt-0.5 text-[10px] text-[var(--color-text-muted)]">{row.time}</div>
+                          </th>
                         ))}
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[var(--color-surface-600)]">
-                      {rows.map((row, rowIndex) => {
-                        if (row.type === 'break' || row.type === 'lunch') {
-                          return (
-                            <tr key={`divider-${rowIndex}`} className="border-y border-[var(--color-surface-600)] bg-[var(--color-surface-900)]/60 text-center font-semibold tracking-wider text-[var(--color-brand-300)]">
-                              <td className="border-r border-[var(--color-surface-600)] bg-[var(--color-surface-700)] px-4 py-2.5 text-left text-[10px] text-[var(--color-text-muted)]">
-                                {row.time}
-                              </td>
-                              <td colSpan={6} className="border-l border-r border-transparent bg-[var(--color-brand-950)]/20 px-4 py-2.5 text-center text-xs font-bold">
-                                {row.label} - {row.time}
-                              </td>
-                            </tr>
-                          )
-                        }
-
-                        return (
-                          <tr key={`period-${rowIndex}`} className="transition-colors hover:bg-[var(--color-surface-900)]/30">
-                            <td className="border-r border-[var(--color-surface-600)] bg-[var(--color-surface-700)] px-4 py-3 text-left font-medium leading-normal text-[var(--color-text-secondary)]">
-                              <div className="font-semibold text-[var(--color-text-primary)]">{row.label}</div>
-                              <div className="mt-0.5 text-[10px] text-[var(--color-text-muted)]">{row.time}</div>
-                            </td>
-                            {days.map((day) => {
-                              const periodIndex = row.index!
-                              const period = activeTimetable.schedule[day]?.[periodIndex]
+                      {days.map((day) => (
+                        <tr key={day} className="transition-colors hover:bg-[var(--color-surface-900)]/30">
+                          <td className="border-r border-[var(--color-surface-600)] bg-[var(--color-surface-700)] px-4 py-3 text-left font-semibold text-[var(--color-text-primary)] sticky left-0 z-10 shadow-[2px_0_5px_rgba(0,0,0,0.1)]">
+                            {day}
+                          </td>
+                          {rows.map((row, idx) => {
+                            if (row.type === 'break' || row.type === 'lunch') {
                               return (
-                                <td key={day} className="w-36 p-1.5 text-center align-middle">
-                                  {period ? (
-                                    <div className={`flex flex-col items-center justify-center gap-0.5 rounded-lg border p-2.5 shadow-sm ${getSubjectColor(period.subject_code)}`}>
-                                      <span className="text-sm font-bold leading-tight tracking-wide">{period.subject_code}</span>
-                                      <span className="max-w-full truncate text-[10px] font-medium leading-tight opacity-75">{period.teacher_name}</span>
-                                    </div>
-                                  ) : (
-                                    <div className="rounded-lg border border-dashed border-[var(--color-surface-600)] bg-[var(--color-surface-700)]/10 p-2 text-[var(--color-text-muted)]">
-                                      -
-                                    </div>
-                                  )}
+                                <td
+                                  key={`divider-${idx}`}
+                                  className="bg-[var(--color-surface-900)]/45 text-center font-bold text-[var(--color-brand-300)]/90 select-none align-middle px-2 py-3 text-[10px] tracking-wider border-l border-r border-[var(--color-surface-600)]/30 min-w-[100px]"
+                                >
+                                  {row.type === 'lunch' ? 'LUNCH' : 'BREAK'}
                                 </td>
                               )
-                            })}
-                          </tr>
-                        )
-                      })}
+                            }
+
+                            const periodIndex = row.index!
+                            const period = activeTimetable.schedule[day]?.[periodIndex]
+                            return (
+                              <td key={`period-${idx}`} className="p-1.5 text-center align-middle min-w-[120px]">
+                                {period ? (
+                                  <div
+                                    className={`flex flex-col items-center justify-center gap-0.5 rounded-lg border p-2 shadow-sm ${getSubjectColor(
+                                      period.subject_code
+                                    )}`}
+                                  >
+                                    <span className="text-xs font-bold leading-tight tracking-wide">
+                                      {period.subject_code}
+                                    </span>
+                                    <span className="max-w-full truncate text-[9px] font-medium leading-tight opacity-75">
+                                      {period.teacher_name}
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <div className="rounded-lg border border-dashed border-[var(--color-surface-600)] bg-[var(--color-surface-700)]/10 p-2 text-[var(--color-text-muted)]">
+                                    -
+                                  </div>
+                                )}
+                              </td>
+                            )
+                          })}
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>

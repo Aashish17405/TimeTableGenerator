@@ -40,7 +40,7 @@ export function Button({ variant = 'primary', size = 'md', children, className =
   const variants = {
     primary: 'bg-[var(--color-brand-600)] hover:bg-[var(--color-brand-500)] text-white shadow-sm',
     ghost: 'bg-transparent hover:bg-[var(--color-surface-700)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] border border-[var(--color-surface-600)]',
-    danger: 'bg-red-900/20 hover:bg-red-900/40 text-red-400 border border-red-900/40',
+    danger: 'bg-[var(--danger-bg)] hover:bg-[var(--danger-bg-hover)] text-[var(--danger-text)] border border-[var(--danger-border)]',
   }
   return (
     <button className={`${base} ${sizes[size]} ${variants[variant]} ${className}`} {...props}>
@@ -50,14 +50,16 @@ export function Button({ variant = 'primary', size = 'md', children, className =
 }
 
 // ─── Badge ────────────────────────────────────────────────────────────────────
-interface BadgeProps { children: ReactNode; color?: 'blue' | 'violet' | 'green' | 'amber' | 'default' }
+interface BadgeProps { children: ReactNode; color?: 'blue' | 'violet' | 'green' | 'amber' | 'pink' | 'cyan' | 'default' }
 export function Badge({ children, color = 'default' }: BadgeProps) {
   const colors = {
-    blue: 'bg-blue-900/30 text-blue-300 border-blue-800/40',
-    violet: 'bg-violet-900/30 text-violet-300 border-violet-800/40',
-    green: 'bg-emerald-900/30 text-emerald-300 border-emerald-800/40',
-    amber: 'bg-amber-900/30 text-amber-300 border-amber-800/40',
-    default: 'bg-[var(--color-surface-600)] text-[var(--color-text-secondary)] border-[var(--color-surface-500)]',
+    blue: 'bg-[var(--badge-blue-bg)] text-[var(--badge-blue-text)] border-[var(--badge-blue-border)]',
+    violet: 'bg-[var(--badge-violet-bg)] text-[var(--badge-violet-text)] border-[var(--badge-violet-border)]',
+    green: 'bg-[var(--badge-green-bg)] text-[var(--badge-green-text)] border-[var(--badge-green-border)]',
+    amber: 'bg-[var(--badge-amber-bg)] text-[var(--badge-amber-text)] border-[var(--badge-amber-border)]',
+    pink: 'bg-[var(--badge-pink-bg,rgba(219,39,119,0.1))] text-[var(--badge-pink-text,#db2777)] border-[var(--badge-pink-border,rgba(219,39,119,0.3))]',
+    cyan: 'bg-[var(--badge-cyan-bg,rgba(6,182,212,0.1))] text-[var(--badge-cyan-text,#0891b2)] border-[var(--badge-cyan-border,rgba(6,182,212,0.3))]',
+    default: 'bg-[var(--badge-default-bg)] text-[var(--badge-default-text)] border-[var(--badge-default-border)]',
   }
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border ${colors[color]}`}>
@@ -145,7 +147,7 @@ export function EmptyState({ icon, message, action }: { icon: ReactNode; message
 // ─── Error alert ──────────────────────────────────────────────────────────────
 export function ErrorAlert({ message }: { message: string }) {
   return (
-    <div className="flex items-start gap-3 p-4 rounded-lg bg-red-900/20 border border-red-800/40 text-red-300 text-sm">
+    <div className="flex items-start gap-3 p-4 rounded-lg bg-[var(--danger-bg)] border border-[var(--danger-border)] text-[var(--danger-text)] text-sm">
       <span className="shrink-0 mt-0.5">⚠</span>
       <span>{message}</span>
     </div>
@@ -165,7 +167,7 @@ export function ConfirmDelete({ open, name, onConfirm, onCancel, loading }: Conf
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onCancel} />
-      <div className="relative bg-[var(--color-surface-800)] border border-[var(--color-surface-600)] rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+      <div className="relative bg-[var(--color-surface-800)] border border-[var(--color-surface-600)] rounded-2xl p-6 w-full max-w-sm shadow-2xl max-h-[90vh] overflow-y-auto">
         <h3 className="text-base font-semibold text-[var(--color-text-primary)] mb-2">Delete confirmation</h3>
         <p className="text-sm text-[var(--color-text-secondary)] mb-6">
           Are you sure you want to delete <span className="font-medium text-[var(--color-text-primary)]">{name}</span>? This cannot be undone.

@@ -1,11 +1,13 @@
 import { Link, useLocation } from 'react-router-dom'
 import {
   BookOpen, GraduationCap, Layout, Users,
-  ClipboardList, CalendarDays, Menu, X, Sparkles,
-  Building2, ChevronDown, Check, PanelLeftClose, PanelLeftOpen
+  ClipboardList, CalendarDays, X, Sparkles,
+  Building2, ChevronDown, Check, PanelLeftClose, PanelLeftOpen,
+  Moon, Sun
 } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import { useSchool } from '../features/school/SchoolContext'
+import { useTheme } from '../context/ThemeContext'
 
 const nav = [
   { to: '/schools', label: 'Schools', icon: Building2 },
@@ -15,13 +17,18 @@ const nav = [
   { to: '/teachers', label: 'Teachers', icon: Users },
   { to: '/requirements', label: 'Requirements', icon: ClipboardList },
   { to: '/allocations', label: 'Allocations', icon: CalendarDays },
-  { to: '/timetable', label: 'Timetable', icon: Sparkles },
+  { to: '/timetables', label: 'Timetables', icon: Sparkles },
   { to: '/ai-timetable', label: 'AI Timetable', icon: Sparkles },
 ]
 
-export default function Sidebar() {
+interface SidebarProps {
+  open: boolean
+  setOpen: (open: boolean) => void
+}
+
+export default function Sidebar({ open, setOpen }: SidebarProps) {
   const { pathname } = useLocation()
-  const [open, setOpen] = useState(false)
+  const { theme, toggleTheme } = useTheme()
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const { schools, activeSchool, setActiveSchool } = useSchool()
@@ -154,24 +161,28 @@ export default function Sidebar() {
         </nav>
 
         {/* Footer */}
-        <div className={`flex items-center ${collapsed ? 'justify-center p-3' : 'px-4 py-3 justify-between'} border-t border-[var(--color-surface-600)]`}>
+        <div className={`flex items-center gap-2 ${collapsed ? 'flex-col justify-center p-3' : 'px-4 py-3 justify-between'} border-t border-[var(--color-surface-600)]`}>
           {!collapsed && <p className="text-xs text-[var(--color-text-muted)] whitespace-nowrap">Data Layer v0.2</p>}
-          <button 
-            onClick={() => setCollapsed(!collapsed)}
-            className="hidden lg:flex p-1.5 rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-surface-700)] hover:text-[var(--color-text-primary)] transition-colors"
-          >
-            {collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
-          </button>
+          
+          <div className="flex items-center gap-1.5">
+            {/* Desktop Theme Toggler */}
+            <button
+              onClick={toggleTheme}
+              className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-700)] transition-colors cursor-pointer"
+              title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+            >
+              {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+            </button>
+
+            <button 
+              onClick={() => setCollapsed(!collapsed)}
+              className="hidden lg:flex p-1.5 rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-surface-700)] hover:text-[var(--color-text-primary)] transition-colors cursor-pointer"
+            >
+              {collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
+            </button>
+          </div>
         </div>
       </aside>
-
-      {/* Mobile toggle */}
-      <button
-        className="lg:hidden fixed top-4 left-4 z-40 p-2 rounded-lg bg-[var(--color-surface-700)] text-[var(--color-text-secondary)] border border-[var(--color-surface-600)]"
-        onClick={() => setOpen(true)}
-      >
-        <Menu size={20} />
-      </button>
     </>
   )
 }

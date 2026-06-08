@@ -7,6 +7,7 @@ from app.crud import (
     subject_requirement,
     teacher_allocation,
     teacher_class_mapping,
+    timetable,
 )
 
 __all__ = [
@@ -18,4 +19,5 @@ __all__ = [
     "subject_requirement",
     "teacher_allocation",
     "teacher_class_mapping",
+    "timetable",
 ]
