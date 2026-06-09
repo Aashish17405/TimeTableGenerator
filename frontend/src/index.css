@@ -316,3 +316,19 @@ body {
   outline: 2px solid var(--color-brand-500);
   outline-offset: 2px;
 }
+
+@keyframes shimmer-loading {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.global-loading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  z-index: 9999;
+  background: linear-gradient(90deg, transparent, var(--color-brand-500), transparent);
+  animation: shimmer-loading 1.5s infinite linear;
+}

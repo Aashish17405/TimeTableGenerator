@@ -2,27 +2,39 @@ import { Pagination } from '../components/Pagination'
 import { useState, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus, Pencil, Trash2, Users, Mail, GraduationCap, X, CalendarDays } from 'lucide-react'
-import { teachersApi, classesApi, teacherClassMappingsApi, timetableApi } from '../services/api'
+import { teachersApi, classesApi, teacherClassMappingsApi, timetableApi, subjectsApi } from '../services/api'
 import type { Teacher } from '../types'
 import { useSchool } from '../features/school/SchoolContext'
 import {
-  PageHeader, Card, Button, Input, Badge,
+  PageHeader, Card, Button, Input, Select, Badge,
   Spinner, EmptyState, ErrorAlert, ConfirmDelete,
 } from '../components/ui'
 
-function TeacherForm({ initial, schoolId, onSubmit, onCancel, loading }: {
+function TeacherForm({ initial, schoolId, classes, subjects, onSubmit, onCancel, loading }: {
   initial?: Partial<Teacher>
   schoolId: number
-  onSubmit: (d: { name: string; email?: string; school_id: number }) => void
+  classes: any[]
+  subjects: any[]
+  onSubmit: (d: { name: string; email?: string; school_id: number; class_id?: number; subject_id?: number }) => void
   onCancel: () => void
   loading: boolean
 }) {
   const [name, setName] = useState(initial?.name ?? '')
   const [email, setEmail] = useState(initial?.email ?? '')
+  const [classId, setClassId] = useState<number | ''>('')
+  const [subjectId, setSubjectId] = useState<number | ''>('')
   return (
-    <form onSubmit={e => { e.preventDefault(); onSubmit({ name: name.trim(), email: email.trim() || undefined, school_id: schoolId }) }} className="flex flex-col gap-4">
+    <form onSubmit={e => { e.preventDefault(); onSubmit({ name: name.trim(), email: email.trim() || undefined, school_id: schoolId, class_id: classId || undefined, subject_id: subjectId || undefined }) }} className="flex flex-col gap-4">
       <Input id="teacher-name" label="Name" placeholder="e.g. Archana" value={name} onChange={e => setName(e.target.value)} required maxLength={100} />
       <Input id="teacher-email" label="Email (optional)" type="email" placeholder="e.g. archana@school.edu" value={email} onChange={e => setEmail(e.target.value)} maxLength={200} />
+      <Select id="teacher-class" label="Assign to Class (optional)" value={classId} onChange={e => setClassId(e.target.value ? Number(e.target.value) : '')}>
+        <option value="">Select class...</option>
+        {classes.map(c => <option key={c.id} value={c.id}>Class {c.name}</option>)}
+      </Select>
+      <Select id="teacher-subject" label="Assign Subject (optional)" value={subjectId} onChange={e => setSubjectId(e.target.value ? Number(e.target.value) : '')} disabled={!classId}>
+        <option value="">Select subject...</option>
+        {subjects.map(s => <option key={s.id} value={s.id}>{s.code} — {s.name}</option>)}
+      </Select>
       <div className="flex gap-3 pt-2">
         <Button type="submit" disabled={loading}>{loading && <Spinner size={14} />}Save</Button>
         <Button type="button" variant="ghost" onClick={onCancel}>Cancel</Button>
@@ -56,6 +68,7 @@ function ClassMappingModal({ teacher, schoolId, onClose }: {
     mutationFn: teacherClassMappingsApi.create,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['teacher-class-mappings', 'teacher', teacher.id] })
+      qc.invalidateQueries({ queryKey: ['teachers', schoolId] })
       setApiError('')
     },
     onError: (e: any) => setApiError(e.response?.data?.detail ?? 'Failed to add mapping'),
@@ -65,6 +78,7 @@ function ClassMappingModal({ teacher, schoolId, onClose }: {
     mutationFn: teacherClassMappingsApi.delete,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['teacher-class-mappings', 'teacher', teacher.id] })
+      qc.invalidateQueries({ queryKey: ['teachers', schoolId] })
     },
   })
 
@@ -279,7 +293,25 @@ export default function TeachersPage() {
     enabled: activeSchoolId !== null, 
   })
   const teachers = paginatedData?.items || []
-  const invalidate = () => qc.invalidateQueries({ queryKey: ['teachers', activeSchoolId] })
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['teachers', activeSchoolId] })
+    qc.invalidateQueries({ queryKey: ['teacher-class-mappings'] })
+    qc.invalidateQueries({ queryKey: ['allocations'] })
+    qc.invalidateQueries({ queryKey: ['stored-timetable'] })
+  }
+
+  const { data: classesData } = useQuery({
+    queryKey: ['classes', activeSchoolId],
+    queryFn: () => classesApi.list(activeSchoolId ?? undefined, undefined, 1000),
+    enabled: activeSchoolId !== null,
+  })
+  const classes = classesData?.items || []
+
+  const { data: subjectsData } = useQuery({
+    queryKey: ['subjects'],
+    queryFn: () => subjectsApi.list(undefined, 1000),
+  })
+  const subjects = subjectsData?.items || []
 
   // Query for stored timetables to count periods and view schedule
   const { data: storedData } = useQuery({
@@ -379,7 +411,7 @@ export default function TeachersPage() {
           <Card className="relative w-full max-w-md p-6 shadow-2xl">
             <h2 className="text-base font-semibold text-[var(--color-text-primary)] mb-5">New Teacher</h2>
             {apiError && <div className="mb-4"><ErrorAlert message={apiError} /></div>}
-            <TeacherForm schoolId={activeSchoolId} onSubmit={d => createMut.mutate(d)} onCancel={() => setModal(false)} loading={createMut.isPending} />
+            <TeacherForm schoolId={activeSchoolId} classes={classes} subjects={subjects} onSubmit={d => createMut.mutate(d)} onCancel={() => setModal(false)} loading={createMut.isPending} />
           </Card>
         </div>
       )}
@@ -390,7 +422,7 @@ export default function TeachersPage() {
           <Card className="relative w-full max-w-md p-6 shadow-2xl">
             <h2 className="text-base font-semibold text-[var(--color-text-primary)] mb-5">Edit Teacher</h2>
             {apiError && <div className="mb-4"><ErrorAlert message={apiError} /></div>}
-            <TeacherForm schoolId={activeSchoolId} initial={editItem} onSubmit={d => updateMut.mutate({ id: editItem.id, data: d })} onCancel={() => setEditItem(null)} loading={updateMut.isPending} />
+            <TeacherForm schoolId={activeSchoolId} classes={classes} subjects={subjects} initial={editItem} onSubmit={d => updateMut.mutate({ id: editItem.id, data: d })} onCancel={() => setEditItem(null)} loading={updateMut.isPending} />
           </Card>
         </div>
       )}
@@ -430,7 +462,7 @@ export default function TeachersPage() {
                       <p className="text-sm font-semibold text-[var(--color-text-primary)] truncate">{t.name}</p>
                       {t.email ? (
                         <p className="text-xs text-[var(--color-text-muted)] flex items-center gap-1 mt-0.5 truncate">
-                          <Mail size={11} />{t.email}
+                           <Mail size={11} />{t.email}
                         </p>
                       ) : (
                         <p className="text-xs text-[var(--color-text-muted)] mt-0.5">No email</p>

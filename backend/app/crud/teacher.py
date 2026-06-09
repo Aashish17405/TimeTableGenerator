@@ -38,20 +38,86 @@ def get_paginated(
 
 
 def create(db: Session, data: TeacherCreate) -> Teacher:
-    teacher = Teacher(**data.model_dump())
+    class_id = data.class_id
+    subject_id = data.subject_id
+    
+    teacher_data = data.model_dump(exclude={"class_id", "subject_id"})
+    teacher = Teacher(**teacher_data)
     db.add(teacher)
     db.commit()
     db.refresh(teacher)
+    
+    _handle_class_subject_assignment(db, teacher, class_id, subject_id)
     return teacher
 
 
 def update(db: Session, teacher: Teacher, data: TeacherUpdate) -> Teacher:
-    patch = data.model_dump(exclude_unset=True)
+    class_id = data.class_id
+    subject_id = data.subject_id
+    
+    patch = data.model_dump(exclude_unset=True, exclude={"class_id", "subject_id"})
     for field, value in patch.items():
         setattr(teacher, field, value)
     db.commit()
     db.refresh(teacher)
+    
+    _handle_class_subject_assignment(db, teacher, class_id, subject_id)
     return teacher
+
+
+def _handle_class_subject_assignment(db: Session, teacher: Teacher, class_id: int | None, subject_id: int | None):
+    if not class_id:
+        return
+        
+    from app.models.teacher_class_mapping import TeacherClassMapping
+    from app.models.teacher_allocation import TeacherAllocation
+    from app.models.section import Section
+    from app.models.school_class import SchoolClass
+    from app.crud import subject_requirement as sr_crud
+    
+    # 1. Map teacher to class
+    mapping = db.query(TeacherClassMapping).filter(
+        TeacherClassMapping.teacher_id == teacher.id,
+        TeacherClassMapping.class_id == class_id
+    ).first()
+    if not mapping:
+        mapping = TeacherClassMapping(teacher_id=teacher.id, class_id=class_id)
+        db.add(mapping)
+        db.commit()
+        
+    # 2. Map teacher to sections for this subject if provided
+    if subject_id:
+        # Determine periods count from class requirements
+        cls = db.get(SchoolClass, class_id)
+        periods = 0
+        if cls:
+            reqs = sr_crud.get_all(db, class_id=class_id, limit=500)
+            for r in reqs:
+                if r.subject_id == subject_id:
+                    periods = r.periods_per_week
+                    break
+        
+        # Fetch sections for this class
+        sections = db.query(Section).filter(Section.school_class_id == class_id).all()
+        for sec in sections:
+            alloc = db.query(TeacherAllocation).filter(
+                TeacherAllocation.section_id == sec.id,
+                TeacherAllocation.subject_id == subject_id
+            ).first()
+            
+            if alloc:
+                alloc.teacher_id = teacher.id
+                if periods > 0:
+                    alloc.periods_per_week = periods
+            else:
+                alloc = TeacherAllocation(
+                    teacher_id=teacher.id,
+                    section_id=sec.id,
+                    subject_id=subject_id,
+                    periods_per_week=periods if periods > 0 else 2 # Fallback
+                )
+                db.add(alloc)
+        db.commit()
 
 
 def delete(db: Session, teacher: Teacher) -> None:

@@ -6,7 +6,7 @@ import { classesApi, teachersApi, teacherClassMappingsApi } from '../services/ap
 import type { SchoolClass } from '../types'
 import { useSchool } from '../features/school/SchoolContext'
 import {
-  PageHeader, Card, Button, Input,
+  PageHeader, Card, Button, Input, Badge,
   Spinner, EmptyState, ErrorAlert, ConfirmDelete,
 } from '../components/ui'
 
@@ -19,20 +19,34 @@ function ClassForm({
 }: {
   initial?: Partial<SchoolClass>
   schoolId: number
-  onSubmit: (data: { name: string; display_order: number; school_id: number }) => void
+  onSubmit: (data: { name: string; display_order: number; school_id: number; sections?: string[] }) => void
   onCancel: () => void
   loading: boolean
 }) {
   const [name, setName] = useState(initial?.name ?? '')
   const [order, setOrder] = useState(String(initial?.display_order ?? ''))
+  const [sectionsText, setSectionsText] = useState(initial?.sections ? initial.sections.join(', ') : '')
 
   return (
     <form
-      onSubmit={e => { e.preventDefault(); onSubmit({ name: name.trim(), display_order: Number(order), school_id: schoolId }) }}
+      onSubmit={e => { 
+        e.preventDefault()
+        const sectionsList = sectionsText
+          .split(',')
+          .map(s => s.trim())
+          .filter(s => s !== '')
+        onSubmit({ 
+          name: name.trim(), 
+          display_order: Number(order), 
+          school_id: schoolId,
+          sections: sectionsList
+        }) 
+      }}
       className="flex flex-col gap-4"
     >
       <Input id="class-name" label="Class Name" placeholder="e.g. VI" value={name} onChange={e => setName(e.target.value)} required maxLength={20} />
       <Input id="class-order" label="Display Order" type="number" placeholder="e.g. 6" value={order} onChange={e => setOrder(e.target.value)} required min={1} />
+      <Input id="class-sections" label="Sections (comma separated)" placeholder="e.g. A, B" value={sectionsText} onChange={e => setSectionsText(e.target.value)} />
       <div className="flex gap-3 pt-2">
         <Button type="submit" disabled={loading}>{loading && <Spinner size={14} />}Save</Button>
         <Button type="button" variant="ghost" onClick={onCancel}>Cancel</Button>
@@ -170,7 +184,11 @@ export default function ClassesPage() {
     enabled: activeSchoolId !== null, 
   })
   const classes = paginatedData?.items || []
-  const invalidate = () => qc.invalidateQueries({ queryKey: ['classes', activeSchoolId] })
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['classes', activeSchoolId] })
+    qc.invalidateQueries({ queryKey: ['sections'] })
+    qc.invalidateQueries({ queryKey: ['stored-timetable'] })
+  }
 
   const createMut = useMutation({
     mutationFn: classesApi.create,
@@ -242,18 +260,29 @@ export default function ClassesPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {classes.map(c => (
             <Card key={c.id} className="p-5 flex flex-col items-center text-center group hover:border-[var(--color-surface-500)] transition-colors relative">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--color-brand-700)]/15 to-[var(--color-brand-900)]/25 border border-[var(--color-brand-700)]/30 flex items-center justify-center mb-3">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--color-brand-700)]/15 to-[var(--color-brand-900)]/25 border border-[var(--color-brand-700)]/30 flex items-center justify-center mb-1">
                 <span className="text-lg font-bold text-[var(--color-brand-500)]">{c.name}</span>
               </div>
               <p className="text-xs text-[var(--color-text-muted)]">Order #{c.display_order}</p>
+              
+              {/* Show sections list */}
+              {c.sections && c.sections.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1 justify-center max-w-full">
+                  {c.sections.map(sec => (
+                    <Badge key={sec} color="blue">{sec}</Badge>
+                  ))}
+                </div>
+              )}
+              
               <button
                 id={`manage-teachers-${c.id}`}
                 onClick={() => setMappingTarget(c)}
-                className="mt-3 flex items-center gap-1.5 text-[10px] font-medium text-[var(--color-brand-500)] hover:text-[var(--color-brand-600)] dark:text-[var(--color-brand-400)] dark:hover:text-[var(--color-brand-300)] transition-colors"
+                className="mt-3 flex items-center gap-1.5 text-[10px] font-medium text-[var(--color-brand-500)] hover:text-[var(--color-brand-600)] dark:text-[var(--color-brand-400)] dark:hover:text-[var(--color-brand-300)] transition-colors cursor-pointer"
               >
                 <Users size={11} />
                 Manage Teachers
               </button>
+              
               <div className="absolute top-2 right-2 flex gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                 <button id={`edit-class-${c.id}`} onClick={() => { setEditItem(c); setApiError('') }} className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-600)] transition-colors">
                   <Pencil size={12} />

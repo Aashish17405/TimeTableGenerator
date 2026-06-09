@@ -33,8 +33,11 @@ def get_allocations_tool(db: Session, class_ids: list[int], school_id: int | Non
     query = db.query(Section).filter(Section.school_class_id.in_(class_ids))
     sections = query.all()
     
-    # Pre-load subject requirements to resolve periods per week dynamically
-    reqs = db.query(SubjectRequirement).filter(SubjectRequirement.school_class_id.in_(class_ids)).all()
+    # Pre-load subject requirements to resolve periods per week dynamically (uses CRUD fallback)
+    from app.crud import subject_requirement as sr_crud
+    reqs = []
+    for class_id in class_ids:
+        reqs.extend(sr_crud.get_all(db, class_id=class_id, limit=500))
     req_map = {(r.school_class_id, r.subject_id): r.periods_per_week for r in reqs}
     
     allocations_data = []

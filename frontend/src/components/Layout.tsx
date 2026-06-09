@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
+import { useIsFetching, useIsMutating } from '@tanstack/react-query'
 import Sidebar from '../components/Sidebar'
 import { Menu, Sun, Moon } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
@@ -7,9 +8,14 @@ import { useTheme } from '../context/ThemeContext'
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { theme, toggleTheme } = useTheme()
+  
+  const isFetching = useIsFetching()
+  const isMutating = useIsMutating()
+  const isLoading = isFetching > 0 || isMutating > 0
 
   return (
     <div className="flex flex-col lg:flex-row h-screen overflow-hidden bg-[var(--color-surface-900)] text-[var(--color-text-primary)]">
+      {isLoading && <div className="global-loading-bar" />}
       
       {/* Mobile Top Bar */}
       <header className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-[var(--color-surface-600)] bg-[var(--color-surface-800)] shrink-0">

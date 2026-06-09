@@ -59,17 +59,12 @@ def generate_all(
     )
     allocations = list(db.scalars(allocations_stmt))
 
-    # 3. Fetch all subject requirements for classes of these sections
-    requirements_stmt = (
-        select(SubjectRequirement)
-        .options(selectinload(SubjectRequirement.subject))
-        .where(
-            SubjectRequirement.school_class_id.in_(
-                {section.school_class_id for section in sections}
-            )
-        )
-    )
-    requirements = list(db.scalars(requirements_stmt))
+    # 3. Fetch all subject requirements for classes of these sections (uses CRUD fallback)
+    from app.crud import subject_requirement as sr_crud
+    requirements = []
+    for class_id in {section.school_class_id for section in sections}:
+        class_reqs = sr_crud.get_all(db, class_id=class_id, limit=500)
+        requirements.extend(class_reqs)
 
     # 4. Map requirements by class & subject
     requirements_by_class: dict[int, dict[int, SubjectRequirement]] = defaultdict(dict)
@@ -181,13 +176,9 @@ def regenerate_class(
     )
     allocations = list(db.scalars(allocations_stmt))
 
-    # 4. Fetch subject requirements for this class
-    requirements_stmt = (
-        select(SubjectRequirement)
-        .options(selectinload(SubjectRequirement.subject))
-        .where(SubjectRequirement.school_class_id == payload.class_id)
-    )
-    requirements = list(db.scalars(requirements_stmt))
+    # 4. Fetch subject requirements for this class (uses CRUD fallback)
+    from app.crud import subject_requirement as sr_crud
+    requirements = sr_crud.get_all(db, class_id=payload.class_id, limit=500)
 
     # 5. Map requirements
     requirements_by_class: dict[int, dict[int, SubjectRequirement]] = defaultdict(dict)
