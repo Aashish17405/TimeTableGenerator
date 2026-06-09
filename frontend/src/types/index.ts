@@ -39,9 +39,10 @@ export interface SchoolClass {
   name: string
   display_order: number
   school_id: number
+  sections?: string[]
 }
-export interface SchoolClassCreate { name: string; display_order: number; school_id: number }
-export interface SchoolClassUpdate { name?: string; display_order?: number }
+export interface SchoolClassCreate { name: string; display_order: number; school_id: number; sections?: string[] }
+export interface SchoolClassUpdate { name?: string; display_order?: number; sections?: string[] }
 
 // ─── Sections ─────────────────────────────────────────────────────────────────
 export interface Section {
@@ -60,8 +61,8 @@ export interface Teacher {
   email: string | null
   school_id: number
 }
-export interface TeacherCreate { name: string; email?: string; school_id: number }
-export interface TeacherUpdate { name?: string; email?: string }
+export interface TeacherCreate { name: string; email?: string; school_id: number; class_id?: number; subject_id?: number }
+export interface TeacherUpdate { name?: string; email?: string; class_id?: number; subject_id?: number }
 
 // ─── Teacher-Class Mappings ───────────────────────────────────────────────────
 export interface TeacherClassMapping {

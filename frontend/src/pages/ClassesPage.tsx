@@ -33,8 +33,8 @@ function ClassForm({
         e.preventDefault()
         const sectionsList = sectionsText
           .split(',')
-          .map(s => s.trim())
-          .filter(s => s !== '')
+          .map((s: string) => s.trim())
+          .filter((s: string) => s !== '')
         onSubmit({ 
           name: name.trim(), 
           display_order: Number(order), 
@@ -268,7 +268,7 @@ export default function ClassesPage() {
               {/* Show sections list */}
               {c.sections && c.sections.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1 justify-center max-w-full">
-                  {c.sections.map(sec => (
+                  {c.sections.map((sec: string) => (
                     <Badge key={sec} color="blue">{sec}</Badge>
                   ))}
                 </div>
