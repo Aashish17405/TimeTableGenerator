@@ -1,4 +1,3 @@
-import { Pagination } from '../components/Pagination'
 import { useState, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus, Trash2, CalendarDays } from 'lucide-react'
@@ -43,10 +42,9 @@ export default function AllocationsPage() {
     enabled: selectedClassId !== null,
   })
 
-  const [page, setPage] = useState(1)
   const { data: paginatedData, isLoading } = useQuery({ 
-    queryKey: ['allocations', activeSchoolId, filterTeacher, filterSection, page],
-    queryFn: () => allocationsApi.list({ school_id: activeSchoolId ?? undefined, teacher_id: filterTeacher, section_id: filterSection, page, size: 20 }),
+    queryKey: ['allocations', activeSchoolId, filterTeacher, filterSection],
+    queryFn: () => allocationsApi.list({ school_id: activeSchoolId ?? undefined, teacher_id: filterTeacher, section_id: filterSection, size: 1000 }),
     enabled: activeSchoolId !== null,
   })
   const allocs = paginatedData?.items || []
@@ -237,7 +235,6 @@ export default function AllocationsPage() {
           })}
         </div>
       )}
-      <Pagination currentPage={paginatedData?.page || 1} totalPages={paginatedData?.pages || 1} onPageChange={setPage} />
     </div>
   )
 }
