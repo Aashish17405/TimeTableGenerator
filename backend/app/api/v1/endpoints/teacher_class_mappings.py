@@ -8,6 +8,7 @@ from app.crud import teacher as teacher_crud
 from app.crud import school_class as class_crud
 from app.schemas.teacher_class_mapping import TeacherClassMappingCreate, TeacherClassMappingRead
 from app.schemas.teacher import TeacherRead
+from app.schemas.school_class import SchoolClassRead
 
 router = APIRouter(prefix="/teacher-class-mappings", tags=["Teacher-Class Mappings"])
 
@@ -64,3 +65,12 @@ def teachers_for_class(class_id: int, db: Session = Depends(get_db)):
     if not school_class:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Class not found.")
     return crud.get_teachers_for_class(db, class_id)
+
+
+@router.get("/classes-for-teacher/{teacher_id}", response_model=list[SchoolClassRead])
+def classes_for_teacher(teacher_id: int, db: Session = Depends(get_db)):
+    """Return all classes the given teacher is mapped to (used in the new allocation modal)."""
+    teacher = teacher_crud.get(db, teacher_id)
+    if not teacher:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Teacher not found.")
+    return crud.get_classes_for_teacher(db, teacher_id)

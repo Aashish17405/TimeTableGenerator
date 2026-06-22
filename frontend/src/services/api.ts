@@ -69,6 +69,8 @@ export const teacherClassMappingsApi = {
   delete: (id: number) => api.delete(`/teacher-class-mappings/${id}`),
   teachersForClass: (classId: number) =>
     api.get<Teacher[]>(`/teacher-class-mappings/teachers-for-class/${classId}`).then(r => r.data),
+  classesForTeacher: (teacherId: number) =>
+    api.get<SchoolClass[]>(`/teacher-class-mappings/classes-for-teacher/${teacherId}`).then(r => r.data),
 }
 
 // ─── Subject Requirements ──────────────────────────────────────────────────────
